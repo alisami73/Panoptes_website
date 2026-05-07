@@ -50,7 +50,7 @@ export default function SlidePipeline({ config, isAnimated }: { config: SlideCon
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 600,
-                  fontSize: 17,
+                  fontSize: 22,
                   color: '#FFFFFF',
                   marginBottom: 8,
                 }}
@@ -60,7 +60,7 @@ export default function SlidePipeline({ config, isAnimated }: { config: SlideCon
               <div
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 11,
+                  fontSize: 15,
                   letterSpacing: '0.15em',
                   color: 'rgba(232,237,242,0.55)',
                   textTransform: 'uppercase',
@@ -69,7 +69,7 @@ export default function SlidePipeline({ config, isAnimated }: { config: SlideCon
               >
                 {c.detail}
               </div>
-              <div style={{ fontSize: 13, color: '#E8EDF2', opacity: 0.7, lineHeight: 1.5 }}>{c.desc}</div>
+              <div style={{ fontSize: 18, color: '#E8EDF2', opacity: 0.7, lineHeight: 1.5 }}>{c.desc}</div>
             </div>
           )
 
@@ -96,7 +96,7 @@ export default function SlidePipeline({ config, isAnimated }: { config: SlideCon
               <div
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 11,
+                  fontSize: 16,
                   letterSpacing: '0.25em',
                   color: 'rgba(232,237,242,0.55)',
                   textTransform: 'uppercase',

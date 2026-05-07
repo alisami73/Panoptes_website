@@ -65,7 +65,7 @@ export default function SlideStack({ config, isAnimated }: { config: SlideConfig
                   <div
                     style={{
                       fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: 11,
+                      fontSize: 16,
                       letterSpacing: '0.25em',
                       color: '#00C2CB',
                       textTransform: 'uppercase',
@@ -78,19 +78,19 @@ export default function SlideStack({ config, isAnimated }: { config: SlideConfig
                     style={{
                       fontFamily: "'Space Grotesk', sans-serif",
                       fontWeight: 600,
-                      fontSize: 24,
+                      fontSize: 28,
                       color: '#FFFFFF',
                       marginBottom: 4,
                     }}
                   >
                     {c.name}
                   </div>
-                  <div style={{ fontSize: 14, color: '#E8EDF2', opacity: 0.8 }}>{c.desc}</div>
+                  <div style={{ fontSize: 18, color: '#E8EDF2', opacity: 0.8 }}>{c.desc}</div>
                 </div>
                 <div
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: 11,
+                    fontSize: 15,
                     letterSpacing: '0.15em',
                     color: 'rgba(232,237,242,0.55)',
                     textTransform: 'uppercase',

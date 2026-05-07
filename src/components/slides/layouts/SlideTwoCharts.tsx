@@ -58,7 +58,7 @@ const baseOptions = (content: any): any => ({
   scales: {
     x: {
       grid: { color: 'rgba(232,237,242,0.06)', display: content.showGrid ?? true },
-      ticks: { color: 'rgba(232,237,242,0.4)', font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0 },
+      ticks: { color: 'rgba(232,237,242,0.4)', font: { family: "'JetBrains Mono', monospace", size: 12 }, maxRotation: 0 },
       border: { color: 'transparent' },
     },
     y: {
@@ -67,7 +67,7 @@ const baseOptions = (content: any): any => ({
       grid: { color: 'rgba(232,237,242,0.06)', display: content.showGrid ?? true },
       ticks: {
         color: 'rgba(232,237,242,0.4)',
-        font: { family: "'JetBrains Mono', monospace", size: 9 },
+        font: { family: "'JetBrains Mono', monospace", size: 12 },
         callback: (v: any) => {
           if (content.yMax && content.yMax <= 100) return `${v}%`
           if (v >= 1000) return `$${(v / 1000).toFixed(0)}M`
@@ -115,7 +115,7 @@ export default function SlideTwoCharts({ config, isAnimated }: { config: SlideCo
               <div
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 11,
+                  fontSize: 16,
                   letterSpacing: '0.25em',
                   color: 'rgba(232,237,242,0.55)',
                   textTransform: 'uppercase',
@@ -128,7 +128,7 @@ export default function SlideTwoCharts({ config, isAnimated }: { config: SlideCo
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 600,
-                  fontSize: 36,
+                  fontSize: 42,
                   color: '#FFFFFF',
                   lineHeight: 1,
                 }}

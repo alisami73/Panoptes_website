@@ -62,7 +62,7 @@ function ProblemCard({ num, icon, title, body, index, animated }: {
       <div
         style={{
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 12,
+          fontSize: 16,
           letterSpacing: '0.3em',
           color: '#00C2CB',
           marginBottom: 16,
@@ -74,14 +74,14 @@ function ProblemCard({ num, icon, title, body, index, animated }: {
         style={{
           fontFamily: "'Space Grotesk', sans-serif",
           fontWeight: 600,
-          fontSize: 26,
+          fontSize: 30,
           color: '#FFFFFF',
           margin: '0 0 14px',
         }}
       >
         {title}
       </h3>
-      <p style={{ fontSize: 16, lineHeight: 1.55, color: '#E8EDF2', opacity: 0.85, margin: 0 }}>{body}</p>
+      <p style={{ fontSize: 20, lineHeight: 1.55, color: '#E8EDF2', opacity: 0.85, margin: 0 }}>{body}</p>
     </div>
   )
 

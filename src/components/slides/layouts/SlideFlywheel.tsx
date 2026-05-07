@@ -62,13 +62,13 @@ export default function SlideFlywheel({ config, isAnimated }: { config: SlideCon
             ].map((node, i) => (
               <g key={i}>
                 <circle cx={node.cx} cy={node.cy} r="32" fill="#0D1B2A" stroke="#00C2CB" strokeWidth="2" />
-                <text x={node.cx} y={node.cy - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="10" letterSpacing="0.18em" fill="#00C2CB">{node.num}</text>
-                <text x={node.cx} y={node.cy + 10} textAnchor="middle" fontFamily="'Space Grotesk', sans-serif" fontWeight="600" fontSize="10" fill="#FFFFFF">{node.label}</text>
+                <text x={node.cx} y={node.cy - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="13" letterSpacing="0.18em" fill="#00C2CB">{node.num}</text>
+                <text x={node.cx} y={node.cy + 12} textAnchor="middle" fontFamily="'Space Grotesk', sans-serif" fontWeight="600" fontSize="13" fill="#FFFFFF">{node.label}</text>
               </g>
             ))}
 
             {/* Edge labels */}
-            <g fontFamily="'JetBrains Mono', monospace" fontSize="10" letterSpacing="0.18em" fill="rgba(232,237,242,0.55)">
+            <g fontFamily="'JetBrains Mono', monospace" fontSize="13" letterSpacing="0.18em" fill="rgba(232,237,242,0.55)">
               <text x="412" y="148" textAnchor="middle">→ richer</text>
               <text x="416" y="396" textAnchor="middle">→ smarter</text>
               <text x="124" y="396" textAnchor="middle">→ higher</text>
@@ -78,8 +78,8 @@ export default function SlideFlywheel({ config, isAnimated }: { config: SlideCon
             {/* Center */}
             <circle cx="270" cy="270" r="60" fill="rgba(0,194,203,0.08)" stroke="#00C2CB" strokeWidth="1.5" />
             <circle cx="270" cy="270" r="6" fill="#00C2CB" />
-            <text x="270" y="266" textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9" letterSpacing="0.25em" fill="#00C2CB">PANOPTES</text>
-            <text x="270" y="282" textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9" letterSpacing="0.18em" fill="rgba(232,237,242,0.55)">FLYWHEEL</text>
+            <text x="270" y="266" textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="12" letterSpacing="0.25em" fill="#00C2CB">PANOPTES</text>
+            <text x="270" y="283" textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="12" letterSpacing="0.18em" fill="rgba(232,237,242,0.55)">FLYWHEEL</text>
           </svg>
         </motion.div>
 
@@ -101,7 +101,7 @@ export default function SlideFlywheel({ config, isAnimated }: { config: SlideCon
                 <div
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: 11,
+                    fontSize: 16,
                     letterSpacing: '0.25em',
                     color: '#00C2CB',
                     marginBottom: 6,
@@ -113,14 +113,14 @@ export default function SlideFlywheel({ config, isAnimated }: { config: SlideCon
                   style={{
                     fontFamily: "'Space Grotesk', sans-serif",
                     fontWeight: 600,
-                    fontSize: 18,
+                    fontSize: 24,
                     color: '#FFFFFF',
                     marginBottom: 4,
                   }}
                 >
                   {c.name}
                 </div>
-                <div style={{ fontSize: 13, color: '#E8EDF2', opacity: 0.75, lineHeight: 1.4 }}>{c.desc}</div>
+                <div style={{ fontSize: 18, color: '#E8EDF2', opacity: 0.75, lineHeight: 1.4 }}>{c.desc}</div>
               </motion.div>
             )
           })}

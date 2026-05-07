@@ -14,7 +14,7 @@ export default function DeckViewer({ slides, token }: DeckViewerProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showNav, setShowNav] = useState(true)
-  const [isExporting, setIsExporting] = useState(false)
+
   const [showThumbs, setShowThumbs] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const slideRefs = useRef<(HTMLDivElement | null)[]>([])
@@ -96,27 +96,8 @@ export default function DeckViewer({ slides, token }: DeckViewerProps) {
     }
   }
 
-  async function exportPDF() {
-    setIsExporting(true)
-    try {
-      const res = await fetch('/api/export-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      })
-      if (!res.ok) throw new Error('Export failed')
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `PANOPTES_Blink_Pharma_${new Date().toISOString().slice(0, 10)}.pdf`
-      a.click()
-      URL.revokeObjectURL(url)
-    } catch (err) {
-      alert('PDF export failed. Please try again.')
-    } finally {
-      setIsExporting(false)
-    }
+  function exportPDF() {
+    window.open(`/deck/print?token=${token}`, '_blank')
   }
 
   return (
@@ -177,22 +158,20 @@ export default function DeckViewer({ slides, token }: DeckViewerProps) {
               <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                 <button
                   onClick={exportPDF}
-                  disabled={isExporting}
                   style={{
                     background: 'rgba(0,194,203,0.15)',
                     border: '1px solid rgba(0,194,203,0.3)',
                     color: '#00C2CB',
                     padding: '8px 20px',
                     borderRadius: 6,
-                    cursor: isExporting ? 'not-allowed' : 'pointer',
+                    cursor: 'pointer',
                     fontFamily: "'JetBrains Mono', monospace",
                     fontSize: 11,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
-                    opacity: isExporting ? 0.6 : 1,
                   }}
                 >
-                  {isExporting ? 'Generating...' : '↓ PDF'}
+                  ↓ PDF
                 </button>
                 <button
                   onClick={() => setShowThumbs(!showThumbs)}

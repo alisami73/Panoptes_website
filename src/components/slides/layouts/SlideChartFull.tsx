@@ -58,7 +58,7 @@ const chartOptions = (content: any): any => ({
       display: content.showLegend ?? true,
       labels: {
         color: 'rgba(232,237,242,0.6)',
-        font: { family: "'JetBrains Mono', monospace", size: 11 },
+        font: { family: "'JetBrains Mono', monospace", size: 14 },
         boxWidth: 12,
         padding: 20,
       },
@@ -79,7 +79,7 @@ const chartOptions = (content: any): any => ({
       grid: { color: 'rgba(232,237,242,0.06)', display: content.showGrid ?? true },
       ticks: {
         color: 'rgba(232,237,242,0.4)',
-        font: { family: "'JetBrains Mono', monospace", size: 10 },
+        font: { family: "'JetBrains Mono', monospace", size: 13 },
         maxRotation: 0,
       },
       border: { color: 'transparent' },
@@ -91,7 +91,7 @@ const chartOptions = (content: any): any => ({
       grid: { color: 'rgba(232,237,242,0.06)', display: content.showGrid ?? true },
       ticks: {
         color: 'rgba(232,237,242,0.4)',
-        font: { family: "'JetBrains Mono', monospace", size: 10 },
+        font: { family: "'JetBrains Mono', monospace", size: 13 },
         callback: (v: any) => {
           if (content.yMax <= 100) return `${v}%`
           if (v >= 1000) return `$${(v / 1000).toFixed(0)}M`
@@ -139,10 +139,10 @@ export default function SlideChartFull({ config, isAnimated }: { config: SlideCo
                   background: 'rgba(0,194,203,0.06)',
                 }}
               >
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.2em', color: '#00C2CB', marginBottom: 4 }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, letterSpacing: '0.2em', color: '#00C2CB', marginBottom: 4 }}>
                   {ann.label}
                 </div>
-                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 22, color: '#FFFFFF' }}>
+                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 28, color: '#FFFFFF' }}>
                   {ann.value}
                 </div>
               </div>

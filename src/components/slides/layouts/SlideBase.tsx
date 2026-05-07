@@ -35,7 +35,7 @@ export function Eyebrow({ text, color = '#00C2CB' }: { text: string; color?: str
     <p
       style={{
         fontFamily: "'JetBrains Mono', monospace",
-        fontSize: 14,
+        fontSize: 18,
         letterSpacing: '0.3em',
         color,
         textTransform: 'uppercase',
@@ -53,7 +53,7 @@ export function SlideTitle({ children, style }: { children: React.ReactNode; sty
       style={{
         fontFamily: "'Space Grotesk', 'Inter', sans-serif",
         fontWeight: 600,
-        fontSize: 72,
+        fontSize: 82,
         lineHeight: 1.05,
         letterSpacing: '-0.02em',
         color: '#FFFFFF',
@@ -74,7 +74,7 @@ export function SlideSubtitle({ children }: { children: React.ReactNode }) {
       style={{
         fontFamily: "'Inter', sans-serif",
         fontWeight: 400,
-        fontSize: 28,
+        fontSize: 34,
         lineHeight: 1.4,
         color: '#E8EDF2',
         margin: '0 0 48px',
@@ -128,7 +128,7 @@ export function SlideFooter({ left, right }: { left?: string; right?: string }) 
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         fontFamily: "'JetBrains Mono', monospace",
-        fontSize: 12,
+        fontSize: 16,
         letterSpacing: '0.2em',
         color: 'rgba(232,237,242,0.32)',
         textTransform: 'uppercase',
@@ -164,7 +164,7 @@ export function ChartFrame({ title, subtitle, children }: {
             display: 'flex',
             justifyContent: 'space-between',
             fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 11,
+            fontSize: 15,
             letterSpacing: '0.25em',
             color: 'rgba(232,237,242,0.55)',
             textTransform: 'uppercase',

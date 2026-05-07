@@ -68,7 +68,7 @@ function SolutionCol({ block, index, animated }: { block: any; index: number; an
         style={{
           fontFamily: "'JetBrains Mono', monospace",
           fontWeight: 600,
-          fontSize: 14,
+          fontSize: 18,
           letterSpacing: '0.3em',
           color: '#00C2CB',
           marginBottom: 16,
@@ -81,7 +81,7 @@ function SolutionCol({ block, index, animated }: { block: any; index: number; an
         style={{
           fontFamily: "'Space Grotesk', sans-serif",
           fontWeight: 600,
-          fontSize: 32,
+          fontSize: 36,
           color: '#FFFFFF',
           marginBottom: 12,
         }}
@@ -91,7 +91,7 @@ function SolutionCol({ block, index, animated }: { block: any; index: number; an
       <div
         style={{
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 12,
+          fontSize: 16,
           letterSpacing: '0.25em',
           color: '#00C2CB',
           textTransform: 'uppercase',
@@ -100,7 +100,7 @@ function SolutionCol({ block, index, animated }: { block: any; index: number; an
       >
         {c.role}
       </div>
-      <p style={{ fontSize: 16, lineHeight: 1.55, color: '#E8EDF2', opacity: 0.85, margin: 0 }}>{c.desc}</p>
+      <p style={{ fontSize: 20, lineHeight: 1.55, color: '#E8EDF2', opacity: 0.85, margin: 0 }}>{c.desc}</p>
       <ul
         style={{
           marginTop: 'auto',
@@ -109,7 +109,7 @@ function SolutionCol({ block, index, animated }: { block: any; index: number; an
           listStyle: 'none',
           paddingLeft: 0,
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 11,
+          fontSize: 15,
           letterSpacing: '0.18em',
           color: 'rgba(232,237,242,0.55)',
           textTransform: 'uppercase',

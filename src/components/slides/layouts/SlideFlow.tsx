@@ -28,7 +28,7 @@ function FlowStage({ num, title, desc, highlight, delay, animated }: {
       <div
         style={{
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 11,
+          fontSize: 16,
           letterSpacing: '0.3em',
           color: highlight ? '#00dcff' : '#00C2CB',
           marginBottom: 16,
@@ -41,14 +41,14 @@ function FlowStage({ num, title, desc, highlight, delay, animated }: {
         style={{
           fontFamily: "'Space Grotesk', sans-serif",
           fontWeight: 600,
-          fontSize: 22,
+          fontSize: 28,
           color: '#FFFFFF',
           marginBottom: 8,
         }}
       >
         {title}
       </div>
-      <div style={{ fontSize: 13, color: '#E8EDF2', opacity: 0.7 }}>{desc}</div>
+      <div style={{ fontSize: 18, color: '#E8EDF2', opacity: 0.7 }}>{desc}</div>
     </div>
   )
 

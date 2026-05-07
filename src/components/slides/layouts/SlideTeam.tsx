@@ -61,7 +61,7 @@ function ProfileCard({ block, index, animated }: { block: any; index: number; an
           style={{
             fontFamily: "'Space Grotesk', sans-serif",
             fontWeight: 600,
-            fontSize: 32,
+            fontSize: 36,
             color: '#FFFFFF',
             margin: '0 0 8px',
           }}
@@ -71,7 +71,7 @@ function ProfileCard({ block, index, animated }: { block: any; index: number; an
         <div
           style={{
             fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 12,
+            fontSize: 16,
             letterSpacing: '0.3em',
             color: '#00C2CB',
             textTransform: 'uppercase',
@@ -82,7 +82,7 @@ function ProfileCard({ block, index, animated }: { block: any; index: number; an
         </div>
         <p
           style={{
-            fontSize: 14,
+            fontSize: 18,
             color: '#E8EDF2',
             opacity: 0.8,
             lineHeight: 1.5,
@@ -98,7 +98,7 @@ function ProfileCard({ block, index, animated }: { block: any; index: number; an
               key={bi}
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 10,
+                fontSize: 14,
                 letterSpacing: '0.18em',
                 color: '#00C2CB',
                 textTransform: 'uppercase',

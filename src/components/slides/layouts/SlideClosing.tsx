@@ -69,7 +69,7 @@ export default function SlideClosing({ config, isAnimated }: { config: SlideConf
           transition={{ duration: 0.6, delay: 0.5 }}
           style={{
             fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 14,
+            fontSize: 18,
             letterSpacing: '0.4em',
             color: 'rgba(232,237,242,0.55)',
             textTransform: 'uppercase',

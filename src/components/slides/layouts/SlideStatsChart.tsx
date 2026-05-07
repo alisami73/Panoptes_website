@@ -44,14 +44,14 @@ export default function SlideStatsChart({ config, isAnimated }: { config: SlideC
     scales: {
       x: {
         grid: { color: 'rgba(232,237,242,0.06)' },
-        ticks: { color: 'rgba(232,237,242,0.4)', font: { family: "'JetBrains Mono', monospace", size: 10 } },
+        ticks: { color: 'rgba(232,237,242,0.4)', font: { family: "'JetBrains Mono', monospace", size: 13 } },
         border: { color: 'transparent' },
       },
       y: {
         min: 0,
         max: 100,
         grid: { color: 'rgba(232,237,242,0.06)' },
-        ticks: { color: 'rgba(232,237,242,0.4)', font: { family: "'JetBrains Mono', monospace", size: 10 } },
+        ticks: { color: 'rgba(232,237,242,0.4)', font: { family: "'JetBrains Mono', monospace", size: 13 } },
         border: { color: 'transparent' },
       },
     },
@@ -68,7 +68,7 @@ export default function SlideStatsChart({ config, isAnimated }: { config: SlideC
         <div>
           {stats && (
             <>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'JetBrains Mono', monospace", fontSize: 14 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'JetBrains Mono', monospace", fontSize: 18 }}>
                 <thead>
                   <tr>
                     {stats.headers.map((h: string, i: number) => (
@@ -82,7 +82,7 @@ export default function SlideStatsChart({ config, isAnimated }: { config: SlideC
                           fontWeight: 500,
                           letterSpacing: '0.18em',
                           textTransform: 'uppercase',
-                          fontSize: 10,
+                          fontSize: 14,
                         }}
                       >
                         {h}
@@ -101,7 +101,7 @@ export default function SlideStatsChart({ config, isAnimated }: { config: SlideC
                             borderBottom: '1px solid rgba(0,194,203,0.08)',
                             color: ci === 0 ? '#FFFFFF' : ci === stats.highlightCol ? '#00C2CB' : '#E8EDF2',
                             fontWeight: ci === 0 || ci === stats.highlightCol ? 600 : 400,
-                            fontSize: ci === stats.highlightCol ? 16 : 14,
+                            fontSize: ci === stats.highlightCol ? 20 : 18,
                           }}
                         >
                           {cell}
@@ -133,7 +133,7 @@ export default function SlideStatsChart({ config, isAnimated }: { config: SlideC
                   <div
                     style={{
                       fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: 12,
+                      fontSize: 16,
                       letterSpacing: '0.15em',
                       color: '#E8EDF2',
                       lineHeight: 1.5,

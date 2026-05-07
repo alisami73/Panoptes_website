@@ -57,7 +57,7 @@ function KPICell({ block, index, animated }: { block: any; index: number; animat
           top: 32,
           right: 32,
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 11,
+          fontSize: 16,
           letterSpacing: '0.25em',
           color: '#00C2CB',
         }}
@@ -91,7 +91,7 @@ function KPICell({ block, index, animated }: { block: any; index: number; animat
       <div
         style={{
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 13,
+          fontSize: 18,
           letterSpacing: '0.25em',
           color: 'rgba(232,237,242,0.55)',
           marginTop: 16,
@@ -112,7 +112,7 @@ function KPICell({ block, index, animated }: { block: any; index: number; animat
                 borderRadius: 4,
                 padding: '4px 10px',
                 fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 10,
+                fontSize: 14,
                 color: '#00C2CB',
                 letterSpacing: '0.18em',
               }}

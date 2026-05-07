@@ -80,7 +80,7 @@ export default function SlideInvestment({ config, isAnimated }: { config: SlideC
                 <span
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: 11,
+                    fontSize: 16,
                     letterSpacing: '0.25em',
                     color: 'rgba(232,237,242,0.55)',
                     textTransform: 'uppercase',
@@ -92,7 +92,7 @@ export default function SlideInvestment({ config, isAnimated }: { config: SlideC
                   style={{
                     fontFamily: "'Space Grotesk', sans-serif",
                     fontWeight: 600,
-                    fontSize: 28,
+                    fontSize: 34,
                     color: '#FFFFFF',
                   }}
                 >
@@ -130,7 +130,7 @@ export default function SlideInvestment({ config, isAnimated }: { config: SlideC
                   <div
                     style={{
                       fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: 11,
+                      fontSize: 15,
                       letterSpacing: '0.3em',
                       color: 'rgba(232,237,242,0.55)',
                       marginBottom: 8,
@@ -142,7 +142,7 @@ export default function SlideInvestment({ config, isAnimated }: { config: SlideC
                     style={{
                       fontFamily: "'Space Grotesk', sans-serif",
                       fontWeight: 600,
-                      fontSize: 36,
+                      fontSize: 42,
                       color: '#FFFFFF',
                     }}
                   >
@@ -167,8 +167,8 @@ export default function SlideInvestment({ config, isAnimated }: { config: SlideC
                   { pct: '15%', label: 'OPS · LEGAL', color: 'rgba(232,237,242,0.35)' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 14, color: '#00C2CB', letterSpacing: '0.18em' }}>{item.pct}</span>
-                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: '#E8EDF2', opacity: 0.7, letterSpacing: '0.12em' }}>{item.label}</span>
+                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 18, color: '#00C2CB', letterSpacing: '0.18em' }}>{item.pct}</span>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#E8EDF2', opacity: 0.7, letterSpacing: '0.12em' }}>{item.label}</span>
                   </div>
                 ))}
               </div>

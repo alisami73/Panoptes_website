@@ -143,7 +143,7 @@ export default function SlideCover({ config, isAnimated }: { config: SlideConfig
               justifyContent: 'space-between',
               alignItems: 'flex-end',
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 12,
+              fontSize: 16,
               letterSpacing: '0.2em',
               color: 'rgba(232,237,242,0.32)',
               textTransform: 'uppercase',

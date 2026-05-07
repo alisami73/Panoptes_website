@@ -357,7 +357,7 @@ export default function SlideVisualArgus({ isPrint, isAnimated }: { config: Slid
         </g>
 
         {/* Bottom headline */}
-        <g fontFamily="'Instrument Serif', Georgia, serif">
+        <g fontFamily="'Space Grotesk', sans-serif">
           <text x="960" y="1000" textAnchor="middle" fill="rgba(220,235,250,0.95)" fontSize="40" letterSpacing="-0.01em">
             A hundred eyes never close.
           </text>

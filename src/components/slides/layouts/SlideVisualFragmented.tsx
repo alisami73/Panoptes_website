@@ -117,7 +117,7 @@ const EntityCard = ({ t, i, label, sub, status, x, y, w, h, signal, delay }: Ent
         fill="rgba(180,210,240,0.7)">{status.toUpperCase()}</text>
       <text x={w - 8} y="14" textAnchor="end" fontFamily="'JetBrains Mono', monospace" fontSize="8"
         letterSpacing="0.18em" fill="rgba(255,140,150,0.75)">+{delay}</text>
-      <text x="14" y="42" fontFamily="'Inter', system-ui, sans-serif" fontSize="13" fontWeight="600"
+      <text x="14" y="42" fontFamily="'Inter', sans-serif" fontSize="13" fontWeight="600"
         letterSpacing="0.08em" fill="rgba(220,235,250,0.95)">{label}</text>
       <text x="14" y="56" fontFamily="'JetBrains Mono', monospace" fontSize="9"
         letterSpacing="0.15em" fill="rgba(150,200,240,0.55)">{sub}</text>
@@ -281,7 +281,7 @@ export default function SlideVisualFragmented({ isPrint, isAnimated }: { config:
           <text x="1860" y="80" textAnchor="end" fill="rgba(255,90,100,0.7)">MEAN DETECTION DELAY: 13.4 DAYS</text>
         </g>
 
-        <g fontFamily="'Instrument Serif', Georgia, serif">
+        <g fontFamily="'Space Grotesk', sans-serif">
           <text x="960" y="1000" textAnchor="middle" fill="rgba(220,230,250,0.92)" fontSize="38" letterSpacing="-0.01em">
             Critical signals already exist.
           </text>

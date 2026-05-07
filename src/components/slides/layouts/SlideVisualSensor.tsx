@@ -398,7 +398,7 @@ export default function SlideVisualSensor({ isPrint, isAnimated }: { config: Sli
         <NationalEngine t={t} x={1180} y={190} w={680} h={620} />
         <SignalCategories t={t} />
 
-        <g fontFamily="'Instrument Serif', Georgia, serif">
+        <g fontFamily="'Space Grotesk', sans-serif">
           <text x="960" y="1010" textAnchor="middle" fill="rgba(220,235,250,0.95)" fontSize="36" letterSpacing="-0.01em">
             Every pharmacy becomes a real-time health sensor.
           </text>

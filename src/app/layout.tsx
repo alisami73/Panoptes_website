@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Providers from './Providers'
+import SiteConsentManager from '@/components/consent/SiteConsentManager'
 
 export const metadata: Metadata = {
   title: 'PANOPTES — Real-Time Health Intelligence',
@@ -20,7 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body style={{ margin: 0, background: '#0D1B2A', color: '#FFFFFF' }}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <SiteConsentManager />
+        </Providers>
       </body>
     </html>
   )

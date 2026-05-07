@@ -8,6 +8,7 @@ import { signOut } from 'next-auth/react'
 const NAV_ITEMS = [
   { href: '/admin', label: 'Slides', icon: '⊡' },
   { href: '/admin/theme', label: 'Thème', icon: '◑' },
+  { href: '/admin/consents', label: 'Consentements', icon: '⚖' },
   { href: '/admin/access', label: 'Accès', icon: '🔑' },
   { href: '/admin/requests', label: 'Demandes', icon: '📬' },
   { href: '/admin/messages', label: 'Messages', icon: '✉' },

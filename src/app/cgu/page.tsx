@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { getPublicConsentState } from '@/lib/site-consent'
 
 const interpretationItems = [
   'a guarantee of performance;',
@@ -118,7 +119,17 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-export default function CguPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function CguPage() {
+  let managedConsent: Awaited<ReturnType<typeof getPublicConsentState>> | null = null
+
+  try {
+    managedConsent = await getPublicConsentState()
+  } catch {
+    managedConsent = null
+  }
+
   return (
     <main
       style={{
@@ -297,6 +308,50 @@ export default function CguPage() {
           >
             © Blink Pharma — All Rights Reserved.
           </div>
+
+          {managedConsent && (
+            <LegalSection title="Navigation Consent Notice">
+              <SectionHeading>Published Consent Snapshot</SectionHeading>
+              <LegalParagraph>
+                This is the current visitor consent text managed from the PANOPTES admin interface.
+              </LegalParagraph>
+              <div
+                style={{
+                  padding: '18px 20px',
+                  borderRadius: 12,
+                  border: '1px solid rgba(0,194,203,0.12)',
+                  background: 'rgba(0,194,203,0.03)',
+                  marginBottom: 18,
+                }}
+              >
+                <div
+                  style={{
+                    marginBottom: 10,
+                    color: '#00C2CB',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 11,
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {managedConsent.version} · {managedConsent.sourceFileName}
+                </div>
+                <div
+                  style={{
+                    color: 'rgba(232,237,242,0.84)',
+                    whiteSpace: 'pre-line',
+                    lineHeight: 1.8,
+                    fontSize: 15,
+                  }}
+                >
+                  {managedConsent.text}
+                </div>
+              </div>
+              <LegalParagraph>
+                Snapshot hash: <span style={{ color: '#00C2CB', fontFamily: "'JetBrains Mono', monospace", wordBreak: 'break-all' }}>{managedConsent.originalFileHash}</span>
+              </LegalParagraph>
+            </LegalSection>
+          )}
 
           <LegalSection title="Forward-Looking Statement">
             <LegalParagraph>

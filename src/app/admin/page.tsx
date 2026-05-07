@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { CONSENT_STORAGE_SLIDE_INDEX } from '@/lib/site-consent'
 import SlideEditorClient from './SlideEditorClient'
 import type { SlideConfig } from '@/types/slide'
 
@@ -10,6 +11,9 @@ export default async function AdminSlidesPage() {
 
   try {
     const slides = await prisma.slideConfig.findMany({
+      where: {
+        slideIndex: { lt: CONSENT_STORAGE_SLIDE_INDEX },
+      },
       orderBy: { slideIndex: 'asc' },
     })
     slideConfigs = slides.map(s => ({

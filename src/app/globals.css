@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0D1B2A;
+  --cyan: #00C2CB;
+  --white: #FFFFFF;
+  --gray: #E8EDF2;
+  --muted: rgba(232, 237, 242, 0.55);
+  --line: rgba(0, 194, 203, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a1422;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 194, 203, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 194, 203, 0.5);
+}
+
+/* Snap scroll for deck */
+.deck-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.deck-slide {
+  scroll-snap-align: start;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Color picker input */
+input[type="color"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+  background: transparent;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 3px;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: 1px solid rgba(0, 194, 203, 0.3);
+  border-radius: 3px;
+}
+
+/* Admin layout */
+.admin-sidebar {
+  background: #0a1422;
+  border-right: 1px solid rgba(0, 194, 203, 0.12);
+}
+
+/* Slide thumbnail */
+.slide-thumbnail {
+  cursor: pointer;
+  border: 1px solid rgba(0, 194, 203, 0.12);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.slide-thumbnail:hover {
+  border-color: rgba(0, 194, 203, 0.4);
+}
+
+.slide-thumbnail.active {
+  border-color: #00C2CB;
+  box-shadow: 0 0 0 1px #00C2CB;
+}
+
+/* Tag pulse animation */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.pulse-dot {
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}

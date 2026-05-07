@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SlideConfig {
+  id         String   @id @default(cuid())
+  slideIndex Int      @unique
+  configJson Json
+  updatedAt  DateTime @updatedAt
+}
+
+model GlobalTheme {
+  id         String   @id @default(cuid())
+  background String   @default("#0D1B2A")
+  accent     String   @default("#00C2CB")
+  textColor  String   @default("#FFFFFF")
+  secondary  String   @default("#E8EDF2")
+  updatedAt  DateTime @updatedAt
+}
+
+model AccessToken {
+  id            String        @id @default(cuid())
+  token         String        @unique
+  email         String
+  note          String?
+  createdAt     DateTime      @default(now())
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  lastUsedAt    DateTime?
+  accessRequest AccessRequest?
+}
+
+model AccessRequest {
+  id            String       @id @default(cuid())
+  name          String
+  organization  String
+  email         String
+  message       String?
+  createdAt     DateTime     @default(now())
+  status        String       @default("pending")
+  accessTokenId String?      @unique
+  accessToken   AccessToken? @relation(fields: [accessTokenId], references: [id])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+}
+
+model EpiMapData {
+  id        String   @id @default(cuid())
+  diseaseId String
+  disease   String
+  period    String   @default("today")
+  data      Json
+  alerts    Json     @default("[]")
+  stats     Json     @default("{\"alert\":0,\"up\":0,\"stable\":0}")
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([diseaseId, period])
+}

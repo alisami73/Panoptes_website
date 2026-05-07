@@ -1,10 +1,19 @@
-import { NextResponse } from 'next/server'
-import { DEFAULT_SITE_CONSENT_TEXT, getPublicConsentState, hashConsentText } from '@/lib/site-consent'
+import { NextRequest, NextResponse } from 'next/server'
+import {
+  CONSENT_COOKIE_NAME,
+  DEFAULT_SITE_CONSENT_TEXT,
+  getPublicConsentState,
+  hashConsentText,
+  isConsentCookieCurrent,
+} from '@/lib/site-consent'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const consent = await getPublicConsentState()
-    return NextResponse.json(consent)
+    return NextResponse.json({
+      ...consent,
+      acknowledgedCurrentVersion: isConsentCookieCurrent(req.cookies.get(CONSENT_COOKIE_NAME)?.value, consent),
+    })
   } catch {
     return NextResponse.json(
       {
@@ -15,6 +24,7 @@ export async function GET() {
         sourceFileName: 'panoptes-consent-v1.txt',
         publishedAt: '2026-05-07T00:00:00.000Z',
         publishedBy: null,
+        acknowledgedCurrentVersion: false,
       },
       { status: 200 },
     )

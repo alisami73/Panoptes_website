@@ -1,5 +1,49 @@
 # CHAT ALI — PANOPTES
 
+## [2026-05-07] — Trois visuels animés restaurés (Argus, Sensor Network, Outbreak Radar)
+
+### Résumé
+Les trois visuels animés du design original (fichiers `design/visual-*.jsx`) n'étaient pas dans la présentation — seuls des placeholders simplifiés existaient. Portage complet des trois en TypeScript/React.
+
+### Fichiers modifiés
+- **`src/components/slides/layouts/SlideVisualFragmented.tsx`** — Remplacé par portage complet de `visual-1-fragmented.jsx` : radar sweep animé, 6 entity cards avec drift, broken pipelines avec particules, heat zones, timeline
+- **`src/components/slides/layouts/SlideVisualSensor.tsx`** — Remplacé par portage complet de `visual-2-sensor-network.jsx` : PharmaPro POS mock, PANOPTES AI Extension widget, National Epidemiology Engine avec carte Maroc et 12 villes, ribbon signal categories
+- **`src/components/slides/layouts/SlideVisualArgus.tsx`** — Nouveau fichier, portage complet de `visual-3-argus.jsx` : figure Argus avec yeux primaires clignotants, couronne de 11 yeux halo, 16 yeux flottants, circuit laurel, body constellation, filaments animés
+- **`src/components/slides/SlideRenderer.tsx`** — Ajout de `'visual-argus': SlideVisualArgus` dans layoutMap, compteur "/ 17" → "/ 18"
+- **`prisma/seed.ts`** — Ajout slide 18 (layout `visual-argus`) pour la slide Argus
+
+### Décisions
+- Animations RAF désactivées si `isPrint=true` ou `isAnimated===false` (même pattern que les autres visuels)
+- Slide Argus = slideIndex 18 (après Closing qui reste à 17)
+- 0 erreur TypeScript après portage
+
+### À retenir pour la prochaine session
+- **Seed à relancer** : `npx tsx prisma/seed.ts` contre la base de production pour créer la slide Argus (slideIndex=18). La DB locale ne tourne pas.
+- Les slides 3 (visual-fragmented) et 6 (visual-sensor) sont déjà en DB — le portage ne change que le code frontend, pas le contenu JSON → visible immédiatement au redémarrage du dev server.
+- La slide Argus n'apparaîtra dans la présentation qu'après le seed.
+
+## [2026-05-07] — Lisibilité des slides + export PDF fonctionnel
+
+### Résumé
+Trois corrections demandées suite aux screenshots des slides animées :
+
+1. **Polices trop petites** — Toutes les tailles de police augmentées dans les 16 layouts de slides (SlideBase + 15 composants individuels). Les textes restent lisibles même à 0.75× de scale (viewport 1440px). Exemples : eyebrow 14→18px, subtitle 28→34px, corps de texte 13→20px, labels 10→16px, tick charts 9→13px.
+
+2. **Animations conservées** — Aucun changement. Les animations Framer Motion sont intentionnellement gardées sur toutes les slides. Le flag `isAnimated={false}` est uniquement appliqué en mode print/export.
+
+3. **Export PDF corrigé** — Le bouton "↓ PDF" ouvre désormais `/deck/print?token=XXX` dans un nouvel onglet. La page print a `@page { size: 297mm 210mm; margin: 0 }`, `print-color-adjust: exact`, et un `window.print()` auto-déclenché après 1.5s de chargement des fonts. L'investisseur voit la boîte de dialogue "Imprimer" → choisit "Enregistrer en PDF". Fonctionne sur Chrome/Safari sans Puppeteer ni dépendance serveur.
+
+### Décisions / Priorités
+- PDF via browser print (pas Puppeteer) : plus fiable sur Vercel, pas de dépendance externe, rendu exact identique au visuel en direct
+- Slides animées sur l'écran, statiques dans l'export (isAnimated=false en mode print)
+- 17 fichiers modifiés, 0 erreur TypeScript, commit `6cd15f2` pushé
+
+### À retenir pour la prochaine session
+- PDF = `window.open('/deck/print?token=...', '_blank')` depuis DeckViewer
+- La page `/deck/print` a `isAnimated={false}` → slides statiques → print parfait
+- Aucune autre modification prévue sur les slides pour le moment
+- Les fichiers `consents/` (AdminShell, api/consent, etc.) sont dans le working tree mais pas encore commités — probablement une feature CGU/consentement en cours
+
 ## [2026-05-07] — Implémentation complète du projet PANOPTES
 
 ### Résumé

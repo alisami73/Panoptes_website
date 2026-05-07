@@ -31,11 +31,14 @@ function KPICell({ block, index, animated }: { block: any; index: number; animat
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
   const c = block.content
-  const numericVal = parseInt(String(c.value).replace(/[^0-9]/g, ''), 10) || 0
+  const rawValue = String(c.value)
+  const numericVal = parseInt(rawValue.replace(/[^0-9]/g, ''), 10) || 0
   const isNumeric = !isNaN(numericVal) && numericVal > 0 && c.value !== 'Multi'
+  // Capture any non-numeric suffix trailing the first run of digits (e.g. "3M+" → "M+")
+  const inlineSuffix = isNumeric ? rawValue.replace(/^[^0-9]*\d+/, '') : ''
   const displayCount = useCountUp(numericVal, 1500, animated && isInView)
 
-  const displayValue = animated && isNumeric ? String(displayCount) : c.value
+  const displayValue = animated && isNumeric ? String(displayCount) + inlineSuffix : rawValue
 
   return (
     <motion.div

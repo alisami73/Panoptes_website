@@ -26,16 +26,29 @@ export default async function DeckPrintPage({ searchParams }: PageProps) {
   })
   const slideConfigs = slides.map(s => s.configJson as unknown as SlideConfig)
 
+  // 297mm page at 96 CSS dpi = 1122.52px. Scale 1920px wide slide to fill exactly.
+  const PRINT_SCALE = 1122 / 1920
+
   return (
     <html>
       <head>
         <style>{`
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { background: #000; }
-          .slide-page { width: 1920px; height: 1080px; overflow: hidden; page-break-after: always; break-after: page; }
           @page { size: 297mm 210mm; margin: 0; }
+          .slide-page {
+            width: 297mm;
+            height: 210mm;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            page-break-after: always;
+            break-after: page;
+          }
           @media print {
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #000; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .slide-page { page-break-after: always; break-after: page; }
           }
         `}</style>
@@ -46,7 +59,7 @@ export default async function DeckPrintPage({ searchParams }: PageProps) {
       <body>
         {slideConfigs.map((slide, i) => (
           <div key={i} className="slide-page">
-            <SlideRenderer slideConfig={slide} scale={1} isPrint isAnimated={false} />
+            <SlideRenderer slideConfig={slide} scale={PRINT_SCALE} isPrint isAnimated={false} />
           </div>
         ))}
       </body>

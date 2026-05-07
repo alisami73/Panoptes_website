@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { email, note, requestId } = await req.json()
+  const { email, note, requestId, sendEmail = true } = await req.json()
   if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
 
   const token = generateToken()
@@ -31,18 +31,16 @@ export async function POST(req: NextRequest) {
     data: { token, email, note, expiresAt },
   })
 
-  // Link to access request if provided
   if (requestId) {
     await prisma.accessRequest.update({
       where: { id: requestId },
-      data: {
-        status: 'sent',
-        accessTokenId: accessToken.id,
-      },
+      data: { status: 'sent', accessTokenId: accessToken.id },
     })
   }
 
-  await sendAccessEmail(email, token, expiresAt)
+  if (sendEmail) {
+    await sendAccessEmail(email, token, expiresAt)
+  }
 
   return NextResponse.json(accessToken)
 }

@@ -89,11 +89,11 @@ export default function MoroccoEpiMap({ diseases, initialDiseaseId }: Props) {
   }
 
   const legendItems: { level: Level; label: string }[] = [
-    { level: 5, label: 'Alerte épidémique' },
-    { level: 4, label: 'Incidence élevée' },
-    { level: 3, label: 'En hausse' },
+    { level: 5, label: 'Epidemic Alert' },
+    { level: 4, label: 'High Incidence' },
+    { level: 3, label: 'Rising' },
     { level: 2, label: 'Stable' },
-    { level: 1, label: 'Faible' },
+    { level: 1, label: 'Low' },
   ]
 
   return (
@@ -105,14 +105,14 @@ export default function MoroccoEpiMap({ diseases, initialDiseaseId }: Props) {
             <span style={{ color: '#a78bfa' }}>blink</span>pharma
           </div>
           <div>
-            <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: 18, color: '#111' }}>PANOPTES — Surveillance épidémiologique</div>
-            <div style={{ fontSize: 13, color: '#666' }}>Carte interactive du Maroc · Données temps réel</div>
+            <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: 18, color: '#111' }}>PANOPTES — Epidemiological Surveillance</div>
+            <div style={{ fontSize: 13, color: '#666' }}>Interactive Map of Morocco · Real-Time Data</div>
           </div>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-          <a href="/" style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, background: '#f0f0f0', color: '#444', textDecoration: 'none', border: '1px solid #ddd' }}>← Accueil</a>
+          <a href="/" style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, background: '#f0f0f0', color: '#444', textDecoration: 'none', border: '1px solid #ddd' }}>← Home</a>
           <button onClick={handleExportPNG} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, background: '#0D1B2A', color: '#fff', border: 'none', cursor: 'pointer' }}>
-            Exporter PNG
+            Export PNG
           </button>
         </div>
       </div>
@@ -220,11 +220,11 @@ export default function MoroccoEpiMap({ diseases, initialDiseaseId }: Props) {
                 }}>
                   <div style={{ fontWeight: 700, marginBottom: 8, fontSize: 14 }}>{tooltip.region.regionName}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ color: '#aaa' }}>Cas</span>
-                    <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#00C2CB' }}>{tooltip.region.cases.toLocaleString('fr-FR')}</span>
+                    <span style={{ color: '#aaa' }}>Cases</span>
+                    <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#00C2CB' }}>{tooltip.region.cases.toLocaleString('en-US')}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ color: '#aaa' }}>Évolution</span>
+                    <span style={{ color: '#aaa' }}>Trend</span>
                     <span style={{ color: tooltip.region.evolutionPct >= 0 ? '#EF9F27' : '#639922' }}>
                       {tooltip.region.evolutionPct >= 0 ? '+' : ''}{tooltip.region.evolutionPct}%
                     </span>
@@ -241,9 +241,9 @@ export default function MoroccoEpiMap({ diseases, initialDiseaseId }: Props) {
               {/* KPIs */}
               <div style={{ display: 'flex', gap: 12 }}>
                 {[
-                  { label: 'Alertes', value: activeDisease.stats.alert, color: '#E24B4A' },
-                  { label: 'En hausse', value: activeDisease.stats.up, color: '#EF9F27' },
-                  { label: 'Stables', value: activeDisease.stats.stable, color: '#639922' },
+                  { label: 'Alerts', value: activeDisease.stats.alert, color: '#E24B4A' },
+                  { label: 'Rising', value: activeDisease.stats.up, color: '#EF9F27' },
+                  { label: 'Stable', value: activeDisease.stats.stable, color: '#639922' },
                 ].map(kpi => (
                   <div key={kpi.label} style={{ flex: 1, background: '#fff', borderRadius: 12, padding: '16px 12px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <div style={{ fontSize: 28, fontWeight: 700, color: '#111', fontFamily: 'Space Grotesk, sans-serif' }}>{kpi.value}</div>
@@ -254,7 +254,7 @@ export default function MoroccoEpiMap({ diseases, initialDiseaseId }: Props) {
 
               {/* Legend */}
               <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#888', marginBottom: 12 }}>NIVEAU D&apos;INCIDENCE</div>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#888', marginBottom: 12 }}>INCIDENCE LEVEL</div>
                 {legendItems.map(item => (
                   <div key={item.level} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <div style={{ width: 14, height: 14, borderRadius: 4, background: LEVEL_COLORS[item.level], flexShrink: 0 }} />
@@ -265,9 +265,9 @@ export default function MoroccoEpiMap({ diseases, initialDiseaseId }: Props) {
 
               {/* Active Alerts */}
               <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#888', marginBottom: 12 }}>ALERTES ACTIVES</div>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#888', marginBottom: 12 }}>ACTIVE ALERTS</div>
                 {activeDisease.alerts.length === 0 ? (
-                  <div style={{ fontSize: 13, color: '#aaa' }}>Aucune alerte active</div>
+                  <div style={{ fontSize: 13, color: '#aaa' }}>No active alerts</div>
                 ) : activeDisease.alerts.map((alert, i) => (
                   <div key={i} style={{ borderLeft: `3px solid ${alert.color}`, paddingLeft: 10, marginBottom: 10 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#111' }}>{alert.type}</div>
@@ -295,7 +295,7 @@ function RegionDetailPanel({ region, onClose }: { region: RegionData; onClose: (
   const label = LEVEL_LABELS[level]
 
   const chartData = {
-    labels: ['J-6', 'J-5', 'J-4', 'J-3', 'J-2', 'J-1', "Auj'"],
+    labels: ['D-6', 'D-5', 'D-4', 'D-3', 'D-2', 'D-1', 'Today'],
     datasets: [{
       data: region.historique,
       borderColor: color,
@@ -337,29 +337,29 @@ function RegionDetailPanel({ region, onClose }: { region: RegionData; onClose: (
       {/* Main metric */}
       <div style={{ background: '#f8f5ef', borderRadius: 12, padding: 16, marginBottom: 16 }}>
         <div style={{ fontSize: 36, fontWeight: 700, color: '#111', fontFamily: 'Space Grotesk, sans-serif' }}>
-          {region.cases.toLocaleString('fr-FR')}
+          {region.cases.toLocaleString('en-US')}
         </div>
-        <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>cas déclarés</div>
+        <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>reported cases</div>
         <div style={{ marginTop: 8, fontSize: 14, fontWeight: 600, color: region.evolutionPct >= 0 ? '#EF9F27' : '#639922' }}>
-          {region.evolutionPct >= 0 ? '↑' : '↓'} {Math.abs(region.evolutionPct)}% vs période précédente
+          {region.evolutionPct >= 0 ? '↑' : '↓'} {Math.abs(region.evolutionPct)}% vs previous period
         </div>
       </div>
 
       {/* Sparkline */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#888', marginBottom: 8 }}>ÉVOLUTION 7 JOURS</div>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#888', marginBottom: 8 }}>7-DAY TREND</div>
         <Line data={chartData} options={chartOptions} height={120} />
       </div>
 
       {/* Forecast */}
       <div style={{ marginBottom: 12, padding: 12, background: '#f0f7ff', borderRadius: 8, borderLeft: `3px solid #4a90d9` }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#4a90d9', marginBottom: 4 }}>PRÉVISION</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#4a90d9', marginBottom: 4 }}>FORECAST</div>
         <div style={{ fontSize: 13, color: '#333' }}>{region.forecast}</div>
       </div>
 
       {/* Action */}
       <div style={{ padding: 12, background: `${color}11`, borderRadius: 8, borderLeft: `3px solid ${color}` }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color, marginBottom: 4 }}>ACTION RECOMMANDÉE</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color, marginBottom: 4 }}>RECOMMENDED ACTION</div>
         <div style={{ fontSize: 13, color: '#333' }}>{region.action}</div>
       </div>
     </div>

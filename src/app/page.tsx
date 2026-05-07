@@ -125,7 +125,7 @@ export default function HomePage() {
                 background: 'rgba(0,194,203,0.06)',
               }}
             >
-              Carte épidémio →
+              Epi Map →
             </a>
             <div
               style={{
@@ -207,7 +207,7 @@ export default function HomePage() {
                 letterSpacing: '0.05em',
               }}
             >
-              Demander un accès
+              Request Access
             </a>
             <a
               href="#contact"
@@ -224,7 +224,7 @@ export default function HomePage() {
                 letterSpacing: '0.05em',
               }}
             >
-              Nous contacter
+              Contact Us
             </a>
           </div>
 
@@ -241,9 +241,9 @@ export default function HomePage() {
             }}
           >
             {[
-              { value: '+300', label: 'Pharmacies live' },
-              { value: '3M+', label: 'Transactions / mois' },
-              { value: '−9 jours', label: 'Avance sur la détection' },
+              { value: '+300', label: 'Live Pharmacies' },
+              { value: '3M+', label: 'Transactions / month' },
+              { value: '−9 days', label: 'Detection lead time' },
             ].map((stat, i) => (
               <div
                 key={i}
@@ -285,7 +285,7 @@ export default function HomePage() {
         {/* Access Request Form */}
         <section id="access" style={{ padding: '80px 64px', maxWidth: 800, margin: '0 auto' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.3em', color: '#00C2CB', textTransform: 'uppercase', marginBottom: 16 }}>
-            01 · Accès Investisseur
+            01 · Investor Access
           </div>
           <h2
             style={{
@@ -297,10 +297,10 @@ export default function HomePage() {
               margin: '0 0 12px',
             }}
           >
-            Demander l&apos;accès au deck
+            Request Deck Access
           </h2>
           <p style={{ color: 'rgba(232,237,242,0.65)', fontSize: 16, margin: '0 0 40px', lineHeight: 1.6 }}>
-            Le pitch deck interactif PANOPTES est disponible sur demande pour les investisseurs qualifiés.
+            The PANOPTES interactive pitch deck is available on request for qualified investors.
           </p>
 
           {accessStatus === 'sent' ? (
@@ -313,14 +313,14 @@ export default function HomePage() {
                 textAlign: 'center',
               }}
             >
-              <div style={{ fontSize: 24, fontWeight: 600, color: '#00C2CB', marginBottom: 8 }}>Demande envoyée ✓</div>
-              <p style={{ color: 'rgba(232,237,242,0.7)', margin: 0 }}>Vous recevrez un lien d&apos;accès sous 24h.</p>
+              <div style={{ fontSize: 24, fontWeight: 600, color: '#00C2CB', marginBottom: 8 }}>Request Sent ✓</div>
+              <p style={{ color: 'rgba(232,237,242,0.7)', margin: 0 }}>You will receive an access link within 24 hours.</p>
             </div>
           ) : (
             <form onSubmit={submitAccessRequest}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <FormInput
-                  label="Nom complet"
+                  label="Full Name"
                   value={accessForm.name}
                   onChange={v => setAccessForm({ ...accessForm, name: v })}
                   required
@@ -334,7 +334,7 @@ export default function HomePage() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <FormInput
-                  label="Email professionnel"
+                  label="Professional Email"
                   type="email"
                   value={accessForm.email}
                   onChange={v => setAccessForm({ ...accessForm, email: v })}
@@ -343,17 +343,17 @@ export default function HomePage() {
               </div>
               <div style={{ marginBottom: 24 }}>
                 <FormTextarea
-                  label="Message (optionnel)"
+                  label="Message (optional)"
                   value={accessForm.message}
                   onChange={v => setAccessForm({ ...accessForm, message: v })}
                 />
               </div>
               <SubmitButton
-                label={accessStatus === 'sending' ? 'Envoi en cours...' : 'Demander l\'accès'}
+                label={accessStatus === 'sending' ? 'Sending...' : 'Request Access'}
                 disabled={accessStatus === 'sending'}
               />
               {accessStatus === 'error' && (
-                <p style={{ color: '#ff5060', marginTop: 12, fontSize: 14 }}>Une erreur s&apos;est produite. Réessayez.</p>
+                <p style={{ color: '#ff5060', marginTop: 12, fontSize: 14 }}>An error occurred. Please try again.</p>
               )}
             </form>
           )}
@@ -374,10 +374,10 @@ export default function HomePage() {
               margin: '0 0 12px',
             }}
           >
-            Nous contacter
+            Contact Us
           </h2>
           <p style={{ color: 'rgba(232,237,242,0.65)', fontSize: 16, margin: '0 0 40px', lineHeight: 1.6 }}>
-            Questions, partenariats, presse — nous répondons sous 48h.
+            Questions, partnerships, press — we respond within 48 hours.
           </p>
 
           {contactStatus === 'sent' ? (
@@ -390,14 +390,14 @@ export default function HomePage() {
                 textAlign: 'center',
               }}
             >
-              <div style={{ fontSize: 24, fontWeight: 600, color: '#00C2CB', marginBottom: 8 }}>Message envoyé ✓</div>
-              <p style={{ color: 'rgba(232,237,242,0.7)', margin: 0 }}>Nous reviendrons vers vous sous 48h.</p>
+              <div style={{ fontSize: 24, fontWeight: 600, color: '#00C2CB', marginBottom: 8 }}>Message Sent ✓</div>
+              <p style={{ color: 'rgba(232,237,242,0.7)', margin: 0 }}>We will get back to you within 48 hours.</p>
             </div>
           ) : (
             <form onSubmit={submitContact}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <FormInput
-                  label="Nom"
+                  label="Name"
                   value={contactForm.name}
                   onChange={v => setContactForm({ ...contactForm, name: v })}
                   required
@@ -419,11 +419,11 @@ export default function HomePage() {
                 />
               </div>
               <SubmitButton
-                label={contactStatus === 'sending' ? 'Envoi en cours...' : 'Envoyer'}
+                label={contactStatus === 'sending' ? 'Sending...' : 'Send'}
                 disabled={contactStatus === 'sending'}
               />
               {contactStatus === 'error' && (
-                <p style={{ color: '#ff5060', marginTop: 12, fontSize: 14 }}>Une erreur s&apos;est produite. Réessayez.</p>
+                <p style={{ color: '#ff5060', marginTop: 12, fontSize: 14 }}>An error occurred. Please try again.</p>
               )}
             </form>
           )}
@@ -445,7 +445,18 @@ export default function HomePage() {
           }}
         >
           <div>© 2026 Blink Pharma — PANOPTES</div>
-          <div>ali.sami@blinkpharmacie.com</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <a
+              href="/cgu"
+              style={{
+                color: 'rgba(232,237,242,0.55)',
+                textDecoration: 'none',
+              }}
+            >
+              CGU
+            </a>
+            <div>ali.sami@blinkpharmacie.com</div>
+          </div>
         </footer>
       </div>
     </div>

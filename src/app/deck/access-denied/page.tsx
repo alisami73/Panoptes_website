@@ -40,7 +40,7 @@ export default function AccessDeniedPage() {
           marginBottom: 16,
         }}
       >
-        Accès refusé
+        Access Denied
       </div>
 
       <h1
@@ -52,11 +52,11 @@ export default function AccessDeniedPage() {
           margin: '0 0 16px',
         }}
       >
-        Lien invalide ou expiré
+        Invalid or Expired Link
       </h1>
 
       <p style={{ color: 'rgba(232,237,242,0.65)', fontSize: 18, maxWidth: 480, lineHeight: 1.6, margin: '0 0 40px' }}>
-        Votre lien d&apos;accès n&apos;est plus valide. Demandez un nouvel accès en remplissant le formulaire.
+        Your access link is no longer valid. Request a new one by filling out the form.
       </p>
 
       <a
@@ -72,7 +72,7 @@ export default function AccessDeniedPage() {
           fontSize: 16,
         }}
       >
-        Demander un accès
+        Request Access
       </a>
     </div>
   )

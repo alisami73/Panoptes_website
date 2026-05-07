@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
     if (result?.ok) {
       router.push('/admin')
     } else {
-      setError('Identifiants invalides')
+      setError('Invalid credentials')
       setLoading(false)
     }
   }
@@ -109,7 +109,7 @@ export default function AdminLoginPage() {
 
           <div style={{ marginBottom: 24 }}>
             <label style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.2em', color: 'rgba(232,237,242,0.5)', textTransform: 'uppercase', marginBottom: 8 }}>
-              Mot de passe
+              Password
             </label>
             <input
               type="password"
@@ -155,7 +155,7 @@ export default function AdminLoginPage() {
               letterSpacing: '0.05em',
             }}
           >
-            {loading ? 'Connexion...' : 'Se connecter'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
       </div>

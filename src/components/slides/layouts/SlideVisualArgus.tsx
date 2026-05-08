@@ -342,12 +342,14 @@ export default function SlideVisualArgus({ isPrint, isAnimated }: { config: Slid
             variant={i % 5 === 0 ? 'warm' : 'cool'} drift />
         ))}
 
-        {/* PANOPTES brand wordmark — opener */}
+        {/* PANOPTES brand wordmark + headline */}
         <g textAnchor="middle">
-          <text x="960" y="62" fontFamily="'Space Grotesk', sans-serif" fontWeight="700" fontSize="56"
+          <text x="960" y="64" fontFamily="'Space Grotesk', sans-serif" fontWeight="700" fontSize="56"
             letterSpacing="0.12em" fill="rgba(255,255,255,0.97)">PANOPTES</text>
-          <text x="960" y="88" fontFamily="'JetBrains Mono', monospace" fontSize="13"
-            letterSpacing="0.42em" fill="rgba(0,220,255,0.82)">REAL-TIME HEALTH INTELLIGENCE</text>
+          <text x="960" y="114" fontFamily="'Space Grotesk', sans-serif" fontSize="38" letterSpacing="-0.01em"
+            fill="rgba(220,235,250,0.95)">A hundred eyes never close.</text>
+          <text x="960" y="148" fontFamily="'Space Grotesk', sans-serif" fontSize="21" fontStyle="italic" letterSpacing="0.02em"
+            fill="rgba(0,220,255,0.85)">Argus reborn — every pharmacy a sensor, every signal seen.</text>
         </g>
 
         {/* Atmospheric side annotations — very low opacity */}
@@ -356,15 +358,10 @@ export default function SlideVisualArgus({ isPrint, isAnimated }: { config: Slid
           <text x="60" y="558">— THE ALL-SEEING ONE —</text>
         </g>
 
-        {/* Bottom headline */}
-        <g fontFamily="'Space Grotesk', sans-serif">
-          <text x="960" y="1000" textAnchor="middle" fill="rgba(220,235,250,0.95)" fontSize="40" letterSpacing="-0.01em">
-            A hundred eyes never close.
-          </text>
-          <text x="960" y="1044" textAnchor="middle" fill="rgba(0,220,255,0.85)" fontSize="22" fontStyle="italic" letterSpacing="0.02em">
-            Argus reborn — every pharmacy a sensor, every signal seen.
-          </text>
-        </g>
+        {/* Bottom tagline */}
+        <text x="960" y="1012" textAnchor="middle"
+          fontFamily="'JetBrains Mono', monospace" fontSize="22" letterSpacing="0.42em"
+          fill="rgba(0,220,255,0.75)">REAL-TIME HEALTH INTELLIGENCE</text>
 
         {/* Corner markers */}
         <g fontFamily="'JetBrains Mono', monospace" fontSize="9" letterSpacing="0.2em" fill="rgba(100,150,220,0.32)">

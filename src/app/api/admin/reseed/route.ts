@@ -37,9 +37,19 @@ const SLIDES = [
   {
     slideIndex: 3,
     configJson: {
-      slideIndex: 3, title: 'Healthcare detects diseases too late.',
+      slideIndex: 3, title: 'Achievements & Traction',
+      subtitle: 'Six years building the operating system for Moroccan pharmacies — from a single-app pilot in 2019 to a four-product portfolio powering thousands of nodes today.',
+      label: '03 Achievements & Traction', layout: 'achievements',
+      theme: { background: '#07101c', textColor: '#FFFFFF', accentColor: '#00C2CB' },
+      blocks: [],
+    },
+  },
+  {
+    slideIndex: 4,
+    configJson: {
+      slideIndex: 4, title: 'Healthcare detects diseases too late.',
       subtitle: 'Critical signals already exist in pharmacies, hospitals, labs, and insurers — but they remain fragmented, siloed, and reported with 13+ days of delay.',
-      label: '03 The Problem', layout: 'problem', eyebrow: '01 · The Problem',
+      label: '04 The Problem', layout: 'problem', eyebrow: '01 · The Problem',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'prob-1', type: 'card', content: { num: '01', icon: 'fragmented-data', title: 'Fragmented data', body: 'Pharmacies, hospitals, labs and insurers each hold a piece of the puzzle — none can see the whole picture.' }, style: { color: '#00C2CB' } },
@@ -51,20 +61,20 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 4,
+    slideIndex: 5,
     configJson: {
-      slideIndex: 4, title: 'Fragmented Health Data', subtitle: '',
-      label: '04 Visual: Fragmented', layout: 'visual-fragmented',
+      slideIndex: 5, title: 'Fragmented Health Data', subtitle: '',
+      label: '05 Visual: Fragmented', layout: 'visual-fragmented',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [],
     },
   },
   {
-    slideIndex: 5,
+    slideIndex: 6,
     configJson: {
-      slideIndex: 5, title: 'A three-layer intelligence stack.',
+      slideIndex: 6, title: 'A three-layer intelligence stack.',
       subtitle: 'Beacon captures the live signal at the point of sale. Two knowledge bases turn raw transactions into clinically meaningful, geo-aware health intelligence.',
-      label: '05 The Solution', layout: 'solution', eyebrow: '02 · The Solution',
+      label: '06 The Solution', layout: 'solution', eyebrow: '02 · The Solution',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'sol-beacon', type: 'solution-col', content: { num: '01 · CAPTURE', icon: 'beacon', title: 'Beacon', role: 'Live capture layer', desc: 'A non-intrusive AI extension that augments existing pharmacy software. Anonymized, k-anonymous, and interoperable with PharmaPro, WinPharma, and Sage-Rx.', features: ['· Plug-and-play widget', '· Real-time, sub-second', '· 14,238 nodes streaming'] }, style: {} },
@@ -74,11 +84,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 6,
+    slideIndex: 7,
     configJson: {
-      slideIndex: 6, title: 'Transforming pharmacy sales\ninto health intelligence.',
+      slideIndex: 7, title: 'Transforming pharmacy sales\ninto health intelligence.',
       subtitle: 'Every transaction is a faint signal. At scale, across 14k+ pharmacies, those signals become a real-time map of population health.',
-      label: '06 Transforming Sales', layout: 'flow', eyebrow: '03 · How it works',
+      label: '07 Transforming Sales', layout: 'flow', eyebrow: '03 · How it works',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'flow-pharmacy', type: 'flow-stage', content: { num: 'SOURCE', icon: 'pos', title: 'Pharmacy', desc: 'A sale is recorded in existing POS software' }, style: {} },
@@ -89,20 +99,20 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 7,
+    slideIndex: 8,
     configJson: {
-      slideIndex: 7, title: 'Sensor Network', subtitle: '',
-      label: '07 Visual: Sensor Network', layout: 'visual-sensor',
+      slideIndex: 8, title: 'Sensor Network', subtitle: '',
+      label: '08 Visual: Sensor Network', layout: 'visual-sensor',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [],
     },
   },
   {
-    slideIndex: 8,
+    slideIndex: 9,
     configJson: {
-      slideIndex: 8, title: 'Drug sales as a surrogate\nclinical endpoint.',
+      slideIndex: 9, title: 'Drug sales as a surrogate\nclinical endpoint.',
       subtitle: 'When ephedrine and antitussive sales spike together across a region, the curve precedes confirmed influenza cases by 7–11 days.',
-      label: '08 Surrogate Endpoint', layout: 'chart-full', eyebrow: '04 · Methodology',
+      label: '09 Surrogate Endpoint', layout: 'chart-full', eyebrow: '04 · Methodology',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'chart-surrogate', type: 'chart', content: { chartType: 'line', chartTitle: 'EPHEDRINE / ANTITUSSIVE SALES vs CONFIRMED INFLUENZA — REGION CASABLANCA', chartSubtitle: 'WINDOW · 12 WEEKS', labels: ['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12','W13'], datasets: [ { label: 'Ephedrine + antitussive sales', data: [20,23,30,38,51,69,91,96,78,59,45,33,24], color: '#00C2CB', fill: true, dashed: false }, { label: 'Confirmed influenza cases (lab)', data: [4,5,6,8,11,18,34,52,68,64,51,38,26], color: '#ff9456', fill: false, dashed: true } ], showLegend: true, showGrid: true, axisLabels: { x: 'Week', y: 'Index (normalized)' }, annotation: { text: '−9 DAYS LEAD', x: 8, color: '#00C2CB' } }, style: {} },
@@ -111,11 +121,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 9,
+    slideIndex: 10,
     configJson: {
-      slideIndex: 9, title: 'From a single SKU\nto a clinical signal.',
+      slideIndex: 10, title: 'From a single SKU\nto a clinical signal.',
       subtitle: 'Each transaction passes through a deterministic, auditable five-stage pipeline before it contributes to any inference.',
-      label: '09 Filtering Single', layout: 'pipeline', eyebrow: '05 · AI pipeline · single-item',
+      label: '10 Filtering Single', layout: 'pipeline', eyebrow: '05 · AI pipeline · single-item',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'pipe-1', type: 'pipeline-step', content: { num: '01', name: 'Ingest', detail: 'Raw POS event', desc: 'SKU string, quantity, ATC hint, timestamp, cell-level geography.' }, style: {} },
@@ -132,11 +142,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 10,
+    slideIndex: 11,
     configJson: {
-      slideIndex: 10, title: 'Co-occurrence is where\ndiagnosis lives.',
+      slideIndex: 11, title: 'Co-occurrence is where\ndiagnosis lives.',
       subtitle: 'Single-drug spikes are noisy. Multi-item baskets — antibiotic + cough syrup + decongestant — produce statistically robust disease fingerprints.',
-      label: '10 Filtering Multiple', layout: 'stats-chart', eyebrow: '06 · AI pipeline · multi-item',
+      label: '11 Filtering Multiple', layout: 'stats-chart', eyebrow: '06 · AI pipeline · multi-item',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'stats-table', type: 'stats-table', content: { headers: ['Disease prototype', 'Slope (β)', 'Pearson r', 'R²', 'Lead'], rows: [ ['Influenza-like illness (J11)', '0.83', '0.89', '0.79', '−9d'], ['Acute bronchitis (J20)', '0.71', '0.82', '0.67', '−6d'], ['Acute gastroenteritis (A09)', '0.66', '0.78', '0.61', '−5d'], ['Allergic rhinitis (J30)', '0.58', '0.74', '0.55', '−4d'], ['Streptococcal pharyngitis (J02)', '0.62', '0.76', '0.58', '−7d'] ], highlightCol: 2 }, style: {} },
@@ -146,11 +156,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 11,
+    slideIndex: 12,
     configJson: {
-      slideIndex: 11, title: 'A three-tier data backbone.',
+      slideIndex: 12, title: 'A three-tier data backbone.',
       subtitle: 'From raw indexing to premium analytics to a third-party data marketplace — three monetizable layers, one substrate.',
-      label: '11 Data Infrastructure', layout: 'stack', eyebrow: '07 · Data infrastructure',
+      label: '12 Data Infrastructure', layout: 'stack', eyebrow: '07 · Data infrastructure',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'stack-1', type: 'stack-block', content: { num: '01', tier: 'tier-1', tag: 'FOUNDATION · OPEN', name: 'MedIndex', desc: 'The canonical pharmaceutical index — drugs, ATC, ICD-10, substitutions. Free, public, the literacy layer of the platform.', meta1: '8.4k drugs', meta2: 'FREE TIER' }, style: {} },
@@ -160,11 +170,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 12,
+    slideIndex: 13,
     configJson: {
-      slideIndex: 12, title: 'Already live, already measured.',
+      slideIndex: 13, title: 'Already live, already measured.',
       subtitle: 'Eighteen months of operation. Real pharmacies. Real signal. Real customers.',
-      label: '12 Traction', layout: 'kpi', eyebrow: '08 · Traction',
+      label: '13 Traction', layout: 'kpi', eyebrow: '08 · Traction',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'kpi-pharmacies', type: 'kpi', content: { value: '300', label: 'Pharmacies live on Beacon', prefix: '+', suffix: '' }, style: { color: '#FFFFFF', accentColor: '#00C2CB' } },
@@ -175,11 +185,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 13,
+    slideIndex: 14,
     configJson: {
-      slideIndex: 13, title: 'A self-reinforcing\ndata flywheel.',
+      slideIndex: 14, title: 'A self-reinforcing\ndata flywheel.',
       subtitle: 'Each new pharmacy enriches the model; each model improvement attracts the next pharmacy. The loop compounds — and is structurally hard to replicate.',
-      label: '13 Strategic Advantage', layout: 'flywheel', eyebrow: '09 · Strategic moat',
+      label: '14 Strategic Advantage', layout: 'flywheel', eyebrow: '09 · Strategic moat',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'flywheel-nodes', type: 'flywheel', content: { nodes: [ { num: '01', label: 'PHARMACIES', pos: 'top' }, { num: '02', label: 'DATA', pos: 'right' }, { num: '03', label: 'INTELLIGENCE', pos: 'bottom' }, { num: '04', label: 'VALUE', pos: 'left' } ], edges: ['→ richer', '→ smarter', '→ higher', '→ more'], center: { title: 'PANOPTES', subtitle: 'FLYWHEEL' } }, style: {} },
@@ -191,11 +201,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 14,
+    slideIndex: 15,
     configJson: {
-      slideIndex: 14, title: '14× revenue in 3 years.',
+      slideIndex: 15, title: '14× revenue in 3 years.',
       subtitle: 'Driven by Beacon network expansion across MENA, Premium upsell into ministries, and the Marketplace coming online in year 3.',
-      label: '14 Revenue Growth', layout: 'chart-full', eyebrow: '10 · Financials · revenue',
+      label: '15 Revenue Growth', layout: 'chart-full', eyebrow: '10 · Financials · revenue',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'chart-revenue', type: 'chart', content: { chartType: 'bar', stacked: true, chartTitle: 'NET REVENUE · USD · BY PRODUCT LINE', chartSubtitle: 'FY 2026 → FY 2028', labels: ['Q1·26','Q2·26','Q3·26','Q4·26','Q1·27','Q2·27','Q3·27','Q4·27','Q1·28','Q2·28','Q3·28','Q4·28'], datasets: [ { label: 'Beacon (network)', data: [375,525,750,1000,1250,1625,2000,2375,2750,3063,3313,3500], color: 'rgba(0,194,203,0.85)' }, { label: 'Premium (SaaS)', data: [125,225,300,375,500,625,750,875,1000,1000,1000,1000], color: 'rgba(0,194,203,0.55)' }, { label: 'Marketplace', data: [62,100,150,200,250,325,400,450,500,500,313,312], color: 'rgba(0,194,203,0.3)' } ], showLegend: true, showGrid: true, yearSeparators: ['FY 2026', 'FY 2027', 'FY 2028'], annotations: [ { label: 'FY28 RUN-RATE', value: '$7.8M' }, { label: '3-YEAR CAGR', value: '~140%' }, { label: 'REVENUE MULTIPLE', value: '14×' } ], axisLabels: { x: '', y: 'USD (thousands)' } }, style: {} },
@@ -203,11 +213,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 15,
+    slideIndex: 16,
     configJson: {
-      slideIndex: 15, title: 'High-margin, leverage-rich.',
+      slideIndex: 16, title: 'High-margin, leverage-rich.',
       subtitle: 'Software economics with a regulated-data moat. Gross margin expands from 70% to 76% as the network amortizes infrastructure cost.',
-      label: '15 Margin Model', layout: 'two-charts', eyebrow: '11 · Financials · economics',
+      label: '16 Margin Model', layout: 'two-charts', eyebrow: '11 · Financials · economics',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'chart-gm', type: 'chart', content: { chartType: 'line', chartTitle: 'GROSS MARGIN · % OF REVENUE', labels: ['Q1·26','Q3·26','Q1·27','Q3·27','Q1·28','Q4·28'], datasets: [ { label: 'Gross Margin %', data: [70,71.5,72.5,73.8,75.2,76], color: '#00C2CB', fill: true } ], yMin: 65, yMax: 80, showLegend: false, showGrid: true, annotations: [{ label: '70%', pos: 'start' }, { label: '76%', pos: 'end' }], axisLabels: { x: '', y: '%' } }, style: {} },
@@ -221,11 +231,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 16,
+    slideIndex: 17,
     configJson: {
-      slideIndex: 16, title: '$0.5M SAFE — to scale\nthe nervous system.',
+      slideIndex: 17, title: '$0.5M SAFE — to scale\nthe nervous system.',
       subtitle: 'A first-money round to fund Beacon network expansion across MENA, deepen the Therapeutic KB, and ship the Marketplace MVP.',
-      label: '16 Investment', layout: 'investment', eyebrow: '12 · The ask',
+      label: '17 Investment', layout: 'investment', eyebrow: '12 · The ask',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'deal-terms', type: 'deal-terms', content: { terms: [ { term: 'Round size', value: '$0.5', unit: 'M' }, { term: 'Instrument', value: 'SAFE · post-money' }, { term: 'Discount', value: '20', unit: '%' }, { term: 'Valuation cap', value: '$8', unit: 'M' }, { term: 'Valuation floor', value: '$5', unit: 'M' }, { term: 'Use of proceeds', value: '18 months runway' } ] }, style: {} },
@@ -234,11 +244,11 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 17,
+    slideIndex: 18,
     configJson: {
-      slideIndex: 17, title: 'A clinician and an engineer.',
+      slideIndex: 18, title: 'A clinician and an engineer.',
       subtitle: 'Twenty years of combined experience in pharmaceutical operations, public health, and large-scale data engineering — purpose-built for this problem.',
-      label: '17 Team', layout: 'team', eyebrow: '13 · Team',
+      label: '18 Team', layout: 'team', eyebrow: '13 · Team',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'team-ali', type: 'image-placeholder', content: { initials: 'AS', name: 'Dr. Ali Sami', role: 'Co-founder · CEO', bio: 'Pharmacist by training, public-health by obsession. Ten years operating pharmacies in Casablanca and advising the Ministry of Health on epidemiological reporting.', badges: ['PHARM.D', 'PUBLIC HEALTH', 'REGULATORY', 'GTM'], shape: 'rect' }, style: {} },
@@ -247,10 +257,10 @@ const SLIDES = [
     },
   },
   {
-    slideIndex: 18,
+    slideIndex: 19,
     configJson: {
-      slideIndex: 18, title: 'Always Watching. Always Learning. Always Protecting health.',
-      subtitle: '', label: '18 Closing', layout: 'closing',
+      slideIndex: 19, title: 'Always Watching. Always Learning. Always Protecting health.',
+      subtitle: '', label: '19 Closing', layout: 'closing',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [
         { id: 'closing-words', type: 'text', content: { lines: [ { text: 'Always ', accent: 'Watching', punctuation: '.' }, { text: 'Always ', accent: 'Learning', punctuation: '.' }, { text: 'Always ', accent: 'Protecting', suffix: ' health.' } ] }, style: { fontSize: '8xl', fontWeight: 'semibold', fontFamily: 'grotesk' } },
@@ -277,7 +287,7 @@ export async function POST() {
       })
     }
 
-    return NextResponse.json({ ok: true, message: `Reset complete — ${SLIDES.length} slides recreated.` })
+    return NextResponse.json({ ok: true, message: `Reset complete — ${SLIDES.length} slides recreated. (19 total)` })
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: e.message }, { status: 500 })
   }

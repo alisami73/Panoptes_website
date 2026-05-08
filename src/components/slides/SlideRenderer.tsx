@@ -19,6 +19,7 @@ import SlideInvestment from './layouts/SlideInvestment'
 import SlideTeam from './layouts/SlideTeam'
 import SlideClosing from './layouts/SlideClosing'
 import SlideVisualArgus from './layouts/SlideVisualArgus'
+import SlideAchievements from './layouts/SlideAchievements'
 
 interface SlideRendererProps {
   slideConfig: SlideConfig
@@ -45,6 +46,7 @@ const layoutMap: Record<string, React.ComponentType<{ config: SlideConfig; isPri
   team: SlideTeam,
   closing: SlideClosing,
   'visual-argus': SlideVisualArgus,
+  'achievements': SlideAchievements,
 }
 
 export default function SlideRenderer({
@@ -112,7 +114,7 @@ export default function SlideRenderer({
           PANOPTES {slideConfig.label ? `// ${slideConfig.label.replace(/^\d+ /, '').toUpperCase()}` : ''}
         </div>
         <div style={{ color: 'rgba(232,237,242,0.32)' }}>
-          {String(slideConfig.slideIndex).padStart(2, '0')} / 18
+          {String(slideConfig.slideIndex).padStart(2, '0')} / 19
         </div>
       </div>
 

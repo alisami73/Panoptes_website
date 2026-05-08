@@ -111,6 +111,42 @@ Les fichiers de design ont été analysés (`design/Panoptes Pitch Deck.html`, `
 
 ---
 
+## [2026-05-07] — Construction de panoptes-demo (app standalone Next.js 14)
+
+### Résumé
+Création complète d'une application Next.js 14 standalone appelée `panoptes-demo` dans `/Users/Lenovo/Documents/2026/Herd/panoptes-demo`. Il s'agit d'un command center épidémiologique de démonstration (sans DB, sans auth) qui simule le système PANOPTES avec des données mock réalistes.
+
+### Fichiers créés
+- `package.json`, `next.config.js`, `tailwind.config.js`, `postcss.config.js`, `tsconfig.json`
+- `src/app/globals.css` — design system complet (polices, variables CSS, animations pulse/beacon)
+- `src/app/layout.tsx` — layout root avec Shell + Google Fonts
+- `src/app/page.tsx` — redirect vers /dashboard
+- `src/data/mock.ts` — 12 régions, 5 maladies, 5 alertes actives, SIGNAL_MAP, SYSTEM_STATS, getScenarioTimeSeries()
+- `src/components/Shell.tsx` — sidebar fixe 220px, liens nav actifs, stats live en bas
+- `src/app/dashboard/page.tsx` — 4 KPI cards, alert feed, system status, sparklines SVG
+- `src/app/scenario/[id]/page.tsx` — drill-down alerte (Chart.js via dynamic import, drug fingerprint, peak estimate)
+- `src/components/TimeSeriesChart.tsx` — composant Chart.js (drug proxy cyan + confirmed cases orange dashed)
+- `src/app/map/page.tsx` — carte SVG Maroc 12 régions, sélecteur de maladie, heatmap, tooltip hover, légende
+
+### Architecture
+- Routes : `/` → redirect, `/dashboard`, `/map`, `/scenario/[id]`
+- Pas de DB, pas d'auth, tout en mock statique
+- Chart.js uniquement côté client (dynamic import avec ssr:false)
+- Sparklines en SVG inline (pas de Chart.js sur le dashboard pour éviter SSR)
+- Design system : navy #0D1B2A, cyan #00C2CB, Inter/Space Grotesk/JetBrains Mono
+
+### Build
+**Build production réussi : 0 erreur TypeScript, 0 erreur de compilation**
+Routes : `/` static, `/dashboard` static, `/map` static (client), `/scenario/[id]` dynamic
+
+### À retenir pour la prochaine session
+- L'app `panoptes-demo` tourne avec `npm run dev` dans `/Users/Lenovo/Documents/2026/Herd/panoptes-demo`
+- Pas besoin de base de données ni de variables d'environnement
+- Pour ajouter des régions à la carte : modifier les paths SVG dans `src/app/map/page.tsx` et les données dans `src/data/mock.ts`
+- Le `npm install` doit utiliser `--legacy-peer-deps` (conflict framer-motion/react)
+
+---
+
 ## [2026-05-07] — Module Carte épidémiologique `/map`
 
 ### Résumé

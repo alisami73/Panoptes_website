@@ -54,14 +54,28 @@ const slides = [
     },
   },
 
-  // ── SLIDE 03 — THE PROBLEM ────────────────────────────────────────────
+  // ── SLIDE 03 — ACHIEVEMENTS & TRACTION ───────────────────────────────
   {
     slideIndex: 3,
     configJson: {
       slideIndex: 3,
+      title: 'Achievements & Traction',
+      subtitle: 'Six years building the operating system for Moroccan pharmacies — from a single-app pilot in 2019 to a four-product portfolio powering thousands of nodes today.',
+      label: '03 Achievements & Traction',
+      layout: 'achievements',
+      theme: { background: '#07101c', textColor: '#FFFFFF', accentColor: '#00C2CB' },
+      blocks: [],
+    },
+  },
+
+  // ── SLIDE 04 — THE PROBLEM ────────────────────────────────────────────
+  {
+    slideIndex: 4,
+    configJson: {
+      slideIndex: 4,
       title: 'Healthcare detects diseases too late.',
       subtitle: 'Critical signals already exist in pharmacies, hospitals, labs, and insurers — but they remain fragmented, siloed, and reported with 13+ days of delay.',
-      label: '03 The Problem',
+      label: '04 The Problem',
       layout: 'problem',
       eyebrow: '01 · The Problem',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -115,28 +129,28 @@ const slides = [
     },
   },
 
-  // ── SLIDE 04 — VISUAL: FRAGMENTED (V1) ───────────────────────────────
+  // ── SLIDE 05 — VISUAL: FRAGMENTED (V1) ───────────────────────────────
   {
-    slideIndex: 4,
+    slideIndex: 5,
     configJson: {
-      slideIndex: 4,
+      slideIndex: 5,
       title: 'Fragmented Health Data',
       subtitle: '',
-      label: '04 Visual: Fragmented',
+      label: '05 Visual: Fragmented',
       layout: 'visual-fragmented',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [],
     },
   },
 
-  // ── SLIDE 05 — THE SOLUTION ───────────────────────────────────────────
+  // ── SLIDE 06 — THE SOLUTION ───────────────────────────────────────────
   {
-    slideIndex: 5,
+    slideIndex: 6,
     configJson: {
-      slideIndex: 5,
+      slideIndex: 6,
       title: 'A three-layer intelligence stack.',
       subtitle: 'Beacon captures the live signal at the point of sale. Two knowledge bases turn raw transactions into clinically meaningful, geo-aware health intelligence.',
-      label: '05 The Solution',
+      label: '06 The Solution',
       layout: 'solution',
       eyebrow: '02 · The Solution',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -184,14 +198,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 06 — TRANSFORMING SALES INTO SIGNAL ─────────────────────────
+  // ── SLIDE 07 — TRANSFORMING SALES INTO SIGNAL ─────────────────────────
   {
-    slideIndex: 6,
+    slideIndex: 7,
     configJson: {
-      slideIndex: 6,
+      slideIndex: 7,
       title: 'Transforming pharmacy sales\ninto health intelligence.',
       subtitle: 'Every transaction is a faint signal. At scale, across 14k+ pharmacies, those signals become a real-time map of population health.',
-      label: '06 Transforming Sales',
+      label: '07 Transforming Sales',
       layout: 'flow',
       eyebrow: '03 · How it works',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -234,28 +248,28 @@ const slides = [
     },
   },
 
-  // ── SLIDE 07 — VISUAL: SENSOR NETWORK (V2) ───────────────────────────
+  // ── SLIDE 08 — VISUAL: SENSOR NETWORK (V2) ───────────────────────────
   {
-    slideIndex: 7,
+    slideIndex: 8,
     configJson: {
-      slideIndex: 7,
+      slideIndex: 8,
       title: 'Sensor Network',
       subtitle: '',
-      label: '07 Visual: Sensor Network',
+      label: '08 Visual: Sensor Network',
       layout: 'visual-sensor',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [],
     },
   },
 
-  // ── SLIDE 08 — DRUG SALES AS SURROGATE ENDPOINT ───────────────────────
+  // ── SLIDE 09 — DRUG SALES AS SURROGATE ENDPOINT ───────────────────────
   {
-    slideIndex: 8,
+    slideIndex: 9,
     configJson: {
-      slideIndex: 8,
+      slideIndex: 9,
       title: 'Drug sales as a surrogate\nclinical endpoint.',
       subtitle: 'When ephedrine and antitussive sales spike together across a region, the curve precedes confirmed influenza cases by 7–11 days.',
-      label: '08 Surrogate Endpoint',
+      label: '09 Surrogate Endpoint',
       layout: 'chart-full',
       eyebrow: '04 · Methodology',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -296,14 +310,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 09 — FILTERING BY SINGLE ITEMS ─────────────────────────────
+  // ── SLIDE 10 — FILTERING BY SINGLE ITEMS ─────────────────────────────
   {
-    slideIndex: 9,
+    slideIndex: 10,
     configJson: {
-      slideIndex: 9,
+      slideIndex: 10,
       title: 'From a single SKU\nto a clinical signal.',
       subtitle: 'Each transaction passes through a deterministic, auditable five-stage pipeline before it contributes to any inference.',
-      label: '09 Filtering Single',
+      label: '10 Filtering Single',
       layout: 'pipeline',
       eyebrow: '05 · AI pipeline · single-item',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -347,14 +361,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 10 — FILTERING BY MULTIPLE ITEMS ────────────────────────────
+  // ── SLIDE 11 — FILTERING BY MULTIPLE ITEMS ────────────────────────────
   {
-    slideIndex: 10,
+    slideIndex: 11,
     configJson: {
-      slideIndex: 10,
+      slideIndex: 11,
       title: 'Co-occurrence is where\ndiagnosis lives.',
       subtitle: 'Single-drug spikes are noisy. Multi-item baskets — antibiotic + cough syrup + decongestant — produce statistically robust disease fingerprints.',
-      label: '10 Filtering Multiple',
+      label: '11 Filtering Multiple',
       layout: 'stats-chart',
       eyebrow: '06 · AI pipeline · multi-item',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -401,14 +415,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 11 — DATA INFRASTRUCTURE ───────────────────────────────────
+  // ── SLIDE 12 — DATA INFRASTRUCTURE ───────────────────────────────────
   {
-    slideIndex: 11,
+    slideIndex: 12,
     configJson: {
-      slideIndex: 11,
+      slideIndex: 12,
       title: 'A three-tier data backbone.',
       subtitle: 'From raw indexing to premium analytics to a third-party data marketplace — three monetizable layers, one substrate.',
-      label: '11 Data Infrastructure',
+      label: '12 Data Infrastructure',
       layout: 'stack',
       eyebrow: '07 · Data infrastructure',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -459,14 +473,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 12 — TRACTION ───────────────────────────────────────────────
+  // ── SLIDE 13 — TRACTION ───────────────────────────────────────────────
   {
-    slideIndex: 12,
+    slideIndex: 13,
     configJson: {
-      slideIndex: 12,
+      slideIndex: 13,
       title: 'Already live, already measured.',
       subtitle: 'Eighteen months of operation. Real pharmacies. Real signal. Real customers.',
-      label: '12 Traction',
+      label: '13 Traction',
       layout: 'kpi',
       eyebrow: '08 · Traction',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -499,14 +513,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 13 — STRATEGIC ADVANTAGE ───────────────────────────────────
+  // ── SLIDE 14 — STRATEGIC ADVANTAGE ───────────────────────────────────
   {
-    slideIndex: 13,
+    slideIndex: 14,
     configJson: {
-      slideIndex: 13,
+      slideIndex: 14,
       title: 'A self-reinforcing\ndata flywheel.',
       subtitle: 'Each new pharmacy enriches the model; each model improvement attracts the next pharmacy. The loop compounds — and is structurally hard to replicate.',
-      label: '13 Strategic Advantage',
+      label: '14 Strategic Advantage',
       layout: 'flywheel',
       eyebrow: '09 · Strategic moat',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -554,14 +568,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 14 — REVENUE GROWTH ─────────────────────────────────────────
+  // ── SLIDE 15 — REVENUE GROWTH ─────────────────────────────────────────
   {
-    slideIndex: 14,
+    slideIndex: 15,
     configJson: {
-      slideIndex: 14,
+      slideIndex: 15,
       title: '14× revenue in 3 years.',
       subtitle: 'Driven by Beacon network expansion across MENA, Premium upsell into ministries, and the Marketplace coming online in year 3.',
-      label: '14 Revenue Growth',
+      label: '15 Revenue Growth',
       layout: 'chart-full',
       eyebrow: '10 · Financials · revenue',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -608,14 +622,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 15 — HIGH-MARGIN SAAS MODEL ────────────────────────────────
+  // ── SLIDE 16 — HIGH-MARGIN SAAS MODEL ────────────────────────────────
   {
-    slideIndex: 15,
+    slideIndex: 16,
     configJson: {
-      slideIndex: 15,
+      slideIndex: 16,
       title: 'High-margin, leverage-rich.',
       subtitle: 'Software economics with a regulated-data moat. Gross margin expands from 70% to 76% as the network amortizes infrastructure cost.',
-      label: '15 Margin Model',
+      label: '16 Margin Model',
       layout: 'two-charts',
       eyebrow: '11 · Financials · economics',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -679,14 +693,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 16 — INVESTMENT ─────────────────────────────────────────────
+  // ── SLIDE 17 — INVESTMENT ─────────────────────────────────────────────
   {
-    slideIndex: 16,
+    slideIndex: 17,
     configJson: {
-      slideIndex: 16,
+      slideIndex: 17,
       title: '$0.5M SAFE — to scale\nthe nervous system.',
       subtitle: 'A first-money round to fund Beacon network expansion across MENA, deepen the Therapeutic KB, and ship the Marketplace MVP.',
-      label: '16 Investment',
+      label: '17 Investment',
       layout: 'investment',
       eyebrow: '12 · The ask',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -731,14 +745,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 17 — TEAM ───────────────────────────────────────────────────
+  // ── SLIDE 18 — TEAM ───────────────────────────────────────────────────
   {
-    slideIndex: 17,
+    slideIndex: 18,
     configJson: {
-      slideIndex: 17,
+      slideIndex: 18,
       title: 'A clinician and an engineer.',
       subtitle: 'Twenty years of combined experience in pharmaceutical operations, public health, and large-scale data engineering — purpose-built for this problem.',
-      label: '17 Team',
+      label: '18 Team',
       layout: 'team',
       eyebrow: '13 · Team',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
@@ -773,14 +787,14 @@ const slides = [
     },
   },
 
-  // ── SLIDE 18 — CLOSING ────────────────────────────────────────────────
+  // ── SLIDE 19 — CLOSING ────────────────────────────────────────────────
   {
-    slideIndex: 18,
+    slideIndex: 19,
     configJson: {
-      slideIndex: 18,
+      slideIndex: 19,
       title: 'Always Watching. Always Learning. Always Protecting health.',
       subtitle: '',
-      label: '18 Closing',
+      label: '19 Closing',
       layout: 'closing',
       theme: { background: '#0D1B2A', textColor: '#FFFFFF', accentColor: '#00C2CB' },
       blocks: [

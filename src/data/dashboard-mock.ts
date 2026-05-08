@@ -109,7 +109,7 @@ export const SIGNAL_MAP: Record<string, Record<string, number>> = {
 }
 
 export const SYSTEM_STATS = {
-  pharmaciesLive: 14238,
+  pharmaciesLive: 278,
   transactionsToday: 3_420_000,
   alertsActive: 5,
   diseasesTracked: 240,

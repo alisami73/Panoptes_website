@@ -323,7 +323,7 @@ export default function DashboardPage() {
       <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
         <KpiCard
           label="PHARMACIES LIVE"
-          value="14,238"
+          value={SYSTEM_STATS.pharmaciesLive.toLocaleString()}
           sub="across 12 regions"
           accent
         />

@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'PANOPTES — Real-Time Health Intelligence',
   description: 'The first nervous system for public health. Blink Pharma pitch deck.',
   robots: 'noindex, nofollow',
+  icons: { icon: '/favicon.svg' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

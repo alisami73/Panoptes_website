@@ -278,6 +278,66 @@ export default function SlideEditorClient({ slides }: Props) {
             </div>
           )}
 
+          {/* Eyebrow */}
+          {config.eyebrow !== undefined && (
+            <div style={{ marginBottom: 14 }}>
+              <label style={fieldLabel}>Eyebrow</label>
+              <input value={config.eyebrow} onChange={e => updateConfig({ eyebrow: e.target.value })} style={inStyle} />
+            </div>
+          )}
+
+          {/* Footer */}
+          {config.footer && (
+            <div style={{ marginBottom: 14 }}>
+              <label style={fieldLabel}>Pied de page — gauche</label>
+              <input value={config.footer.left} onChange={e => updateConfig({ footer: { ...config.footer!, left: e.target.value } })} style={{ ...inStyle, marginBottom: 6 }} />
+              <label style={fieldLabel}>Pied de page — droite</label>
+              <input value={config.footer.right} onChange={e => updateConfig({ footer: { ...config.footer!, right: e.target.value } })} style={inStyle} />
+            </div>
+          )}
+
+          {/* Validation note */}
+          {config.validationNote !== undefined && (
+            <div style={{ marginBottom: 14 }}>
+              <label style={fieldLabel}>Note de validation</label>
+              <textarea value={config.validationNote} onChange={e => updateConfig({ validationNote: e.target.value })} rows={3} style={taStyle} />
+            </div>
+          )}
+
+          {/* Metrics */}
+          {config.metrics && config.metrics.length > 0 && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={fieldLabel}>Métriques</div>
+              {config.metrics.map((m, mi) => (
+                <div key={mi} style={{ marginBottom: 8, padding: '8px 10px', background: 'rgba(0,194,203,0.04)', border: '1px solid rgba(0,194,203,0.1)', borderRadius: 4 }}>
+                  <div style={{ fontSize: 9, color: 'rgba(232,237,242,0.35)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.15em', marginBottom: 6, textTransform: 'uppercase' }}>
+                    Métrique {mi + 1}
+                  </div>
+                  <input
+                    placeholder="Label"
+                    value={m.label}
+                    onChange={e => { const next = [...config.metrics!]; next[mi] = { ...next[mi], label: e.target.value }; updateConfig({ metrics: next }) }}
+                    style={{ ...inStyle, marginBottom: 5 }}
+                  />
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <input
+                      placeholder="Valeur"
+                      value={m.value}
+                      onChange={e => { const next = [...config.metrics!]; next[mi] = { ...next[mi], value: e.target.value }; updateConfig({ metrics: next }) }}
+                      style={{ ...inStyle, flex: 2 }}
+                    />
+                    <input
+                      placeholder="Unité"
+                      value={m.unit ?? ''}
+                      onChange={e => { const next = [...config.metrics!]; next[mi] = { ...next[mi], unit: e.target.value }; updateConfig({ metrics: next }) }}
+                      style={{ ...inStyle, flex: 1 }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Visibility toggle */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid rgba(0,194,203,0.08)', marginTop: 4 }}>
             <span style={{ fontSize: 13, color: 'rgba(232,237,242,0.55)' }}>{config.hidden ? 'Masquée du deck' : 'Visible dans le deck'}</span>

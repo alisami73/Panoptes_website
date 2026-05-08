@@ -252,11 +252,11 @@ export default function SlideEditorClient({ slides }: Props) {
                 <span style={{ fontSize: 13, color: 'rgba(232,237,242,0.65)' }}>{label}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'rgba(232,237,242,0.4)' }}>
-                    {(config.theme as Record<string, string>)[key]}
+                    {(config.theme as unknown as Record<string, string>)[key]}
                   </span>
                   <input
                     type="color"
-                    value={(config.theme as Record<string, string>)[key]}
+                    value={String((config.theme as unknown as Record<string, string>)[key] ?? '#000000')}
                     onChange={e => updateConfig({ theme: { ...config.theme, [key]: e.target.value } })}
                   />
                 </div>

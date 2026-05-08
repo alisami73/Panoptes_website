@@ -1,366 +1,433 @@
 'use client'
 
-import React, { useState, useRef, useCallback } from 'react'
-import { Line } from 'react-chartjs-2'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-} from 'chart.js'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
+import styles from './MoroccoEpiMap.module.css'
 import {
   DiseaseConfig,
-  Level,
-  LEVEL_COLORS,
-  LEVEL_HOVER_COLORS,
   LEVEL_LABELS,
   Period,
   PERIODS,
   RegionData,
 } from '@/data/epi-map-data'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler)
+type RegionLayout = {
+  id: string
+  shortLabel: string
+  points: string
+  labelX: number
+  labelY: number
+  valueX: number
+  valueY: number
+  pulseX?: number
+  pulseY?: number
+}
 
-// SVG polygon paths for Morocco's 12 regions (viewBox="0 0 460 760")
-const REGION_PATHS: { id: string; points: string; labelX: number; labelY: number; labelShort: string }[] = [
-  { id: 'tanger-tetouan', points: '110,42 190,38 245,55 248,82 210,100 155,102 105,85 100,60', labelX: 175, labelY: 70, labelShort: 'Tanger-Tétouan' },
-  { id: 'oriental',       points: '260,50 342,44 392,63 394,93 356,113 293,112 252,92 250,66', labelX: 318, labelY: 80, labelShort: 'Oriental' },
-  { id: 'fes-meknes',     points: '178,128 298,120 336,142 332,168 296,185 236,186 178,168 170,145', labelX: 252, labelY: 155, labelShort: 'Fès-Meknès' },
-  { id: 'rabat-sale',     points: '88,198 175,190 208,212 205,242 174,258 112,258 80,238 78,215', labelX: 145, labelY: 224, labelShort: 'Rabat-Salé' },
-  { id: 'beni-mellal',    points: '234,222 330,215 372,238 370,268 326,284 260,282 216,260 218,238', labelX: 295, labelY: 250, labelShort: 'Béni Mellal' },
-  { id: 'casablanca-settat', points: '68,282 162,278 195,300 192,330 158,346 96,344 62,326 60,300', labelX: 128, labelY: 312, labelShort: 'Casablanca' },
-  { id: 'marrakech-safi', points: '132,352 272,346 322,370 318,405 272,428 196,430 136,415 106,390 118,360', labelX: 218, labelY: 388, labelShort: 'Marrakech-Safi' },
-  { id: 'draa-tafilalet', points: '288,360 395,353 442,378 438,418 394,448 322,444 278,424 268,390', labelX: 358, labelY: 402, labelShort: 'Drâa-Tafilalet' },
-  { id: 'souss-massa',    points: '100,446 242,440 272,462 268,494 224,512 145,510 92,493 82,466', labelX: 178, labelY: 476, labelShort: 'Souss-Massa' },
-  { id: 'guelmim',        points: '86,536 196,530 222,554 218,580 180,596 112,594 76,576 72,548', labelX: 148, labelY: 562, labelShort: 'Guelmim' },
-  { id: 'laayoune',       points: '74,616 196,610 222,634 218,664 178,680 106,678 62,658 60,630', labelX: 140, labelY: 646, labelShort: 'Laâyoune' },
-  { id: 'dakhla',         points: '62,698 188,692 214,718 210,752 168,772 98,772 52,748 48,715', labelX: 130, labelY: 732, labelShort: 'Dakhla' },
+const REGION_LAYOUTS: RegionLayout[] = [
+  { id: 'tanger-tetouan', shortLabel: 'TANGER-TETOUAN', points: '260,90 430,90 470,135 440,180 280,180 240,135', labelX: 340, labelY: 129, valueX: 340, valueY: 153, pulseX: 340, pulseY: 135 },
+  { id: 'oriental', shortLabel: 'ORIENTAL', points: '500,100 660,90 700,140 680,230 540,230 480,170', labelX: 590, labelY: 160, valueX: 590, valueY: 184 },
+  { id: 'fes-meknes', shortLabel: 'FES-MEKNES', points: '320,210 500,210 540,265 500,330 330,330 280,275', labelX: 410, labelY: 270, valueX: 410, valueY: 294 },
+  { id: 'rabat-sale', shortLabel: 'RABAT-SALE', points: '180,260 290,250 320,310 290,370 200,370 150,320', labelX: 235, labelY: 309, valueX: 235, valueY: 333, pulseX: 235, pulseY: 315 },
+  { id: 'beni-mellal', shortLabel: 'BENI MELLAL', points: '360,360 510,360 540,410 510,470 370,470 330,410', labelX: 435, labelY: 412, valueX: 435, valueY: 436 },
+  { id: 'casablanca-settat', shortLabel: 'CASABLANCA', points: '160,400 290,400 320,455 290,520 170,520 120,455', labelX: 220, labelY: 454, valueX: 220, valueY: 478, pulseX: 220, pulseY: 460 },
+  { id: 'marrakech-safi', shortLabel: 'MARRAKECH-SAFI', points: '200,540 380,540 420,595 380,660 220,660 170,595', labelX: 295, labelY: 598, valueX: 295, valueY: 622 },
+  { id: 'draa-tafilalet', shortLabel: 'DRAA-TAFILALET', points: '450,500 660,490 700,560 670,640 480,640 420,580', labelX: 560, labelY: 568, valueX: 560, valueY: 592 },
+  { id: 'souss-massa', shortLabel: 'SOUSS-MASSA', points: '200,690 380,690 420,745 380,810 220,810 170,745', labelX: 295, labelY: 748, valueX: 295, valueY: 772 },
+  { id: 'guelmim', shortLabel: 'GUELMIM-OUED NOUN', points: '180,840 360,840 400,890 360,950 200,950 150,890', labelX: 275, labelY: 893, valueX: 275, valueY: 917 },
+  { id: 'laayoune', shortLabel: 'LAAYOUNE-SAKIA', points: '160,1000 380,1000 430,1040 400,1080 200,1080 130,1040', labelX: 280, labelY: 1042, valueX: 280, valueY: 1066 },
+  { id: 'dakhla', shortLabel: 'DAKHLA-OUED ED-DAHAB', points: '470,1000 660,1000 700,1040 670,1080 500,1080 440,1040', labelX: 570, labelY: 1042, valueX: 570, valueY: 1066 },
 ]
 
-interface TooltipState {
-  visible: boolean
-  x: number
-  y: number
-  region: RegionData | null
+const CONNECTIONS = [
+  [340, 135, 590, 160],
+  [410, 270, 590, 160],
+  [340, 135, 235, 315],
+  [235, 315, 220, 460],
+  [410, 270, 435, 412],
+  [435, 412, 295, 598],
+  [220, 460, 295, 598],
+  [295, 598, 560, 568],
+  [295, 598, 295, 748],
+  [295, 748, 275, 893],
+  [275, 893, 280, 1042],
+  [280, 1042, 570, 1042],
+] as const
+
+const LEGEND_META: Record<number, string> = {
+  5: '≥ 200 / 100k',
+  4: '120 — 199',
+  3: '60 — 119',
+  2: '25 — 59',
+  1: '< 25',
 }
+
+const LEVEL_STYLES: Record<number, { fill: string; stroke: string; pulse: string; valueFill?: string }> = {
+  5: { fill: 'rgba(255,80,96,0.26)', stroke: '#ff5060', pulse: '#ff5060' },
+  4: { fill: 'rgba(255,148,86,0.25)', stroke: '#ff9456', pulse: '#ff9456' },
+  3: { fill: 'rgba(184,115,51,0.28)', stroke: '#b87333', pulse: '#b87333' },
+  2: { fill: 'rgba(0,194,203,0.18)', stroke: '#00C2CB', pulse: '#00C2CB' },
+  1: { fill: 'rgba(0,194,203,0.10)', stroke: '#00C2CB', pulse: '#00C2CB', valueFill: 'rgba(255,255,255,0.55)' },
+}
+
+const LATITUDE_GUIDES = [
+  { y: 150, label: '35°N' },
+  { y: 300, label: '32°N' },
+  { y: 450, label: '29°N' },
+  { y: 600, label: '26°N' },
+  { y: 750, label: '23°N' },
+  { y: 900, label: '21°N' },
+]
 
 interface Props {
   diseases: DiseaseConfig[]
   initialDiseaseId?: string
 }
 
+function formatSyncSeconds(value: number) {
+  return `${value.toFixed(2)}s`
+}
+
+function buildIncidenceMap(regions: RegionData[]) {
+  const ranges: Record<number, [number, number]> = {
+    5: [200, 240],
+    4: [120, 199],
+    3: [60, 119],
+    2: [25, 59],
+    1: [9, 24],
+  }
+
+  const byLevel = new Map<number, RegionData[]>()
+  for (const region of regions) {
+    const level = Number(region.level)
+    const bucket = byLevel.get(level) || []
+    bucket.push(region)
+    byLevel.set(level, bucket)
+  }
+
+  const result = new Map<string, number>()
+
+  byLevel.forEach((items, level) => {
+    const [rangeMin, rangeMax] = ranges[level] || [10, 25]
+    const caseMin = Math.min(...items.map(item => item.cases))
+    const caseMax = Math.max(...items.map(item => item.cases))
+
+    for (const item of items) {
+      const ratio = caseMax === caseMin ? 0.5 : (item.cases - caseMin) / (caseMax - caseMin)
+      result.set(item.regionId, Math.round(rangeMin + ratio * (rangeMax - rangeMin)))
+    }
+  })
+
+  return result
+}
+
 export default function MoroccoEpiMap({ diseases, initialDiseaseId }: Props) {
+  const pageRef = useRef<HTMLDivElement>(null)
   const [activeDiseaseId, setActiveDiseaseId] = useState(initialDiseaseId ?? diseases[0]?.id ?? 'grippe')
   const [activePeriod, setActivePeriod] = useState<Period>('today')
-  const [hoveredRegion, setHoveredRegion] = useState<string | null>(null)
-  const [selectedRegion, setSelectedRegion] = useState<RegionData | null>(null)
-  const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, x: 0, y: 0, region: null })
-  const mapRef = useRef<HTMLDivElement>(null)
+  const [syncSeconds, setSyncSeconds] = useState(0)
+  const [updatedTime, setUpdatedTime] = useState('')
 
-  const activeDisease = diseases.find(d => d.id === activeDiseaseId) ?? diseases[0]
-  const regionMap = Object.fromEntries(activeDisease.regions.map(r => [r.regionId, r]))
+  const activeDisease = useMemo(
+    () => diseases.find(disease => disease.id === activeDiseaseId) ?? diseases[0],
+    [activeDiseaseId, diseases],
+  )
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<SVGPolygonElement>, regionId: string) => {
-    const rect = mapRef.current?.getBoundingClientRect()
-    if (!rect) return
-    setTooltip({
-      visible: true,
-      x: e.clientX - rect.left + 12,
-      y: e.clientY - rect.top - 10,
-      region: regionMap[regionId] ?? null,
-    })
-  }, [regionMap])
+  const regionsById = useMemo(
+    () => new Map(activeDisease?.regions.map(region => [region.regionId, region]) ?? []),
+    [activeDisease],
+  )
 
-  const handleMouseLeave = useCallback(() => {
-    setTooltip(prev => ({ ...prev, visible: false }))
-    setHoveredRegion(null)
+  const incidenceByRegion = useMemo(
+    () => buildIncidenceMap(activeDisease?.regions ?? []),
+    [activeDisease],
+  )
+
+  const levelCounts = useMemo(() => {
+    const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    for (const region of activeDisease?.regions ?? []) {
+      counts[Number(region.level)] += 1
+    }
+    return counts
+  }, [activeDisease])
+
+  useEffect(() => {
+    const start = performance.now()
+    const timer = window.setInterval(() => {
+      const elapsed = ((performance.now() - start) / 1000) % 60
+      setSyncSeconds(elapsed)
+
+      const now = new Intl.DateTimeFormat('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZoneName: 'short',
+      }).format(new Date())
+
+      setUpdatedTime(now)
+    }, 120)
+
+    return () => window.clearInterval(timer)
   }, [])
 
-  const handleExportPNG = async () => {
-    if (!mapRef.current) return
+  async function handleExportPng() {
+    if (!pageRef.current) return
     const html2canvas = (await import('html2canvas')).default
-    const canvas = await html2canvas(mapRef.current, { backgroundColor: '#f8f5ef', scale: 2 })
+    const canvas = await html2canvas(pageRef.current, {
+      backgroundColor: '#07101c',
+      scale: 2,
+    })
     const link = document.createElement('a')
-    link.download = `PANOPTES_epi_${activeDiseaseId}_${activePeriod}.png`
+    link.download = `panoptes-map-${activeDiseaseId}-${activePeriod}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
   }
 
-  const legendItems: { level: Level; label: string }[] = [
-    { level: 5, label: 'Epidemic Alert' },
-    { level: 4, label: 'High Incidence' },
-    { level: 3, label: 'Rising' },
-    { level: 2, label: 'Stable' },
-    { level: 1, label: 'Low' },
-  ]
+  if (!activeDisease) return null
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8f5ef', color: '#1a1a1a', fontFamily: 'Inter, sans-serif' }}>
-      {/* Header */}
-      <div style={{ background: '#ffffff', borderBottom: '1px solid #e8e4dd', padding: '16px 32px', display: 'flex', alignItems: 'center', gap: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ background: 'linear-gradient(135deg, #6C48D6 0%, #00C2CB 100%)', borderRadius: 8, padding: '6px 12px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 14, color: '#fff' }}>
-            <span style={{ color: '#a78bfa' }}>blink</span>pharma
+    <div className={styles.page}>
+      <div ref={pageRef} className={styles.captureFrame}>
+        <div className={styles.syncBar}>
+          <div className={styles.syncLeft}>
+            <span className={styles.live}><span className={styles.dot} />STATE · LIVE</span>
+            <span>14,238 PHARMACIES STREAMING</span>
+            <span>SYNC · {formatSyncSeconds(syncSeconds)}</span>
           </div>
-          <div>
-            <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: 18, color: '#111' }}>PANOPTES — Epidemiological Surveillance</div>
-            <div style={{ fontSize: 13, color: '#666' }}>Interactive Map of Morocco · Real-Time Data</div>
+          <div className={styles.syncRight}>
+            <span>DETECTION LEAD · <span style={{ color: '#00C2CB' }}>−9.1 DAYS</span></span>
+            <span>v2026.05.08</span>
           </div>
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-          <a href="/" style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, background: '#f0f0f0', color: '#444', textDecoration: 'none', border: '1px solid #ddd' }}>← Home</a>
-          <button onClick={handleExportPNG} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, background: '#0D1B2A', color: '#fff', border: 'none', cursor: 'pointer' }}>
-            Export PNG
-          </button>
+
+        <div className={styles.pageHeader}>
+          <div className={styles.brandMark}>
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <defs>
+                <radialGradient id="logo-iris-map" cx="42%" cy="40%" r="60%">
+                  <stop offset="0%" stopColor="#a8e6ff" />
+                  <stop offset="40%" stopColor="#00C2CB" />
+                  <stop offset="100%" stopColor="#0a2754" />
+                </radialGradient>
+              </defs>
+              <ellipse cx="16" cy="16" rx="14" ry="8" fill="none" stroke="#00C2CB" strokeWidth="1.5" transform="rotate(-12 16 16)" />
+              <circle cx="16" cy="16" r="5" fill="url(#logo-iris-map)" />
+              <circle cx="16" cy="16" r="2.2" fill="#0D1B2A" />
+              <circle cx="14.5" cy="14.5" r="0.8" fill="#fff" opacity="0.9" />
+            </svg>
+            <span className={styles.wordmark}>blink<span className={styles.pharma}>pharma</span></span>
+          </div>
+
+          <div className={styles.titleBlock}>
+            <h1>PANOPTES — Epidemiological Surveillance</h1>
+            <div className={styles.subtitle}>
+              <span>Interactive map of Morocco</span>
+              <span className={styles.sep}>·</span>
+              <span>Real-time data</span>
+            </div>
+          </div>
+
+          <div className={styles.pageActions}>
+            <Link href="/" className={styles.btn}>← Home</Link>
+            <button type="button" className={styles.btnPrimary} onClick={handleExportPng}>Export PNG</button>
+          </div>
         </div>
-      </div>
 
-      {/* Disease selector */}
-      <div style={{ background: '#ffffff', borderBottom: '1px solid #e8e4dd', padding: '12px 32px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        {diseases.map(d => (
-          <button
-            key={d.id}
-            onClick={() => { setActiveDiseaseId(d.id); setSelectedRegion(null) }}
-            style={{
-              padding: '8px 18px',
-              borderRadius: 999,
-              fontSize: 14,
-              fontWeight: activeDiseaseId === d.id ? 600 : 400,
-              background: activeDiseaseId === d.id ? '#0D1B2A' : 'transparent',
-              color: activeDiseaseId === d.id ? '#fff' : '#444',
-              border: `1.5px solid ${activeDiseaseId === d.id ? '#0D1B2A' : '#ccc'}`,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-          >{d.name}</button>
-        ))}
-      </div>
-
-      {/* Period selector */}
-      <div style={{ background: '#ffffff', borderBottom: '1px solid #e8e4dd', padding: '10px 32px', display: 'flex', gap: 8 }}>
-        {PERIODS.map(p => (
-          <button
-            key={p.id}
-            onClick={() => setActivePeriod(p.id)}
-            style={{
-              padding: '6px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: activePeriod === p.id ? 600 : 400,
-              background: activePeriod === p.id ? '#fff' : 'transparent',
-              color: activePeriod === p.id ? '#111' : '#666',
-              border: `1.5px solid ${activePeriod === p.id ? '#111' : '#ddd'}`,
-              cursor: 'pointer',
-            }}
-          >{p.label}</button>
-        ))}
-      </div>
-
-      {/* Main content */}
-      <div style={{ display: 'flex', gap: 0, height: 'calc(100vh - 160px)', overflow: 'hidden' }}>
-        {/* Map area */}
-        <div ref={mapRef} style={{ flex: 1, padding: '24px 32px', overflowY: 'auto', position: 'relative' }}>
-          <div style={{ display: 'flex', gap: 24 }}>
-            {/* SVG Map */}
-            <div style={{ position: 'relative', flex: '0 0 auto' }}>
-              <svg
-                viewBox="0 0 460 760"
-                width={420}
-                height={690}
-                style={{ display: 'block' }}
+        <div className={styles.filters}>
+          <div className={styles.filterRow}>
+            <span className={styles.filterLabel}>Condition</span>
+            {diseases.map(disease => (
+              <button
+                key={disease.id}
+                type="button"
+                className={`${styles.chip} ${activeDiseaseId === disease.id ? styles.chipActive : ''}`}
+                onClick={() => setActiveDiseaseId(disease.id)}
               >
-                {REGION_PATHS.map(rp => {
-                  const rd = regionMap[rp.id]
-                  const level = (rd?.level ?? 1) as Level
-                  const isHovered = hoveredRegion === rp.id
-                  const isSelected = selectedRegion?.regionId === rp.id
-                  const fill = isHovered ? LEVEL_HOVER_COLORS[level] : LEVEL_COLORS[level]
+                {disease.name}
+              </button>
+            ))}
+          </div>
+
+          <div className={styles.filterRow}>
+            <span className={styles.filterLabel}>Period</span>
+            {PERIODS.map(period => (
+              <button
+                key={period.id}
+                type="button"
+                className={`${styles.chip} ${activePeriod === period.id ? styles.chipActive : ''}`}
+                onClick={() => setActivePeriod(period.id)}
+              >
+                {period.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.main}>
+          <div className={`${styles.panel} ${styles.mapPanel}`}>
+            <div className={styles.mapFrame}>
+              <div className={styles.mapOverlay}>12 REGIONS · {activeDisease.name.toUpperCase()}</div>
+              <div className={styles.mapOverlayRight}>UPDATED · {updatedTime || 'LIVE FEED'}</div>
+              <div className={styles.mapCoords}>31.7917° N · 7.0926° W</div>
+
+              <svg className={styles.mapSvg} viewBox="0 0 800 1100" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Panoptes epidemiological dashboard map">
+                <defs>
+                  <filter id="map-blur-glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="1.2" />
+                  </filter>
+                </defs>
+
+                <g stroke="rgba(0,194,203,0.05)" strokeWidth="0.5">
+                  <line x1="0" y1="150" x2="800" y2="150" />
+                  <line x1="0" y1="300" x2="800" y2="300" />
+                  <line x1="0" y1="450" x2="800" y2="450" />
+                  <line x1="0" y1="600" x2="800" y2="600" />
+                  <line x1="0" y1="750" x2="800" y2="750" />
+                  <line x1="0" y1="900" x2="800" y2="900" />
+                  <line x1="160" y1="0" x2="160" y2="1100" />
+                  <line x1="320" y1="0" x2="320" y2="1100" />
+                  <line x1="480" y1="0" x2="480" y2="1100" />
+                  <line x1="640" y1="0" x2="640" y2="1100" />
+                </g>
+
+                <g>
+                  {LATITUDE_GUIDES.map(guide => (
+                    <text key={guide.label} className={styles.latLabel} x="12" y={guide.y + 4}>{guide.label}</text>
+                  ))}
+                </g>
+
+                <g stroke="rgba(0,194,203,0.14)" strokeWidth="0.5" strokeDasharray="1 4" fill="none">
+                  {CONNECTIONS.map(([x1, y1, x2, y2], index) => (
+                    <line key={index} x1={x1} y1={y1} x2={x2} y2={y2} />
+                  ))}
+                </g>
+
+                {REGION_LAYOUTS.map(regionLayout => {
+                  const region = regionsById.get(regionLayout.id)
+                  if (!region) return null
+
+                  const level = Number(region.level)
+                  const palette = LEVEL_STYLES[level] || LEVEL_STYLES[1]
+                  const incidence = incidenceByRegion.get(region.regionId) ?? 0
+                  const showPulse = level >= 4 && regionLayout.pulseX && regionLayout.pulseY
+
                   return (
-                    <g key={rp.id}>
+                    <g key={regionLayout.id} className={styles.region}>
                       <polygon
-                        points={rp.points}
-                        fill={fill}
-                        stroke={isSelected ? '#0D1B2A' : '#f8f5ef'}
-                        strokeWidth={isSelected ? 2.5 : 1.5}
-                        style={{ cursor: 'pointer', transition: 'fill 0.15s' }}
-                        onMouseEnter={() => setHoveredRegion(rp.id)}
-                        onMouseMove={(e) => handleMouseMove(e, rp.id)}
-                        onMouseLeave={handleMouseLeave}
-                        onClick={() => setSelectedRegion(rd ?? null)}
+                        points={regionLayout.points}
+                        fill={palette.fill}
+                        stroke={palette.stroke}
+                        strokeWidth={level >= 4 ? 1.5 : 1.15}
                       />
+
+                      {showPulse && (
+                        <>
+                          <circle cx={regionLayout.pulseX} cy={regionLayout.pulseY} r="3" fill={palette.pulse} filter="url(#map-blur-glow)">
+                            <animate attributeName="r" values="3;15;3" dur="2.2s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" values="1;0;1" dur="2.2s" repeatCount="indefinite" />
+                          </circle>
+                          <circle cx={regionLayout.pulseX} cy={regionLayout.pulseY} r="3" fill={palette.pulse} />
+                        </>
+                      )}
+
+                      <text className={styles.regionLabel} x={regionLayout.labelX} y={regionLayout.labelY}>
+                        {regionLayout.shortLabel}
+                      </text>
                       <text
-                        x={rp.labelX}
-                        y={rp.labelY}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        style={{ fontSize: 9, fill: '#fff', fontFamily: 'Inter, sans-serif', fontWeight: 600, pointerEvents: 'none', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
-                      >{rp.labelShort}</text>
+                        className={styles.regionValue}
+                        x={regionLayout.valueX}
+                        y={regionLayout.valueY}
+                        fill={palette.valueFill || 'rgba(255,255,255,0.85)'}
+                      >
+                        {incidence} / 100K
+                      </text>
                     </g>
                   )
                 })}
               </svg>
+            </div>
+          </div>
 
-              {/* Tooltip */}
-              {tooltip.visible && tooltip.region && (
-                <div style={{
-                  position: 'absolute',
-                  left: tooltip.x,
-                  top: tooltip.y,
-                  background: '#0D1B2A',
-                  color: '#fff',
-                  borderRadius: 10,
-                  padding: '12px 16px',
-                  fontSize: 13,
-                  pointerEvents: 'none',
-                  zIndex: 100,
-                  minWidth: 200,
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-                }}>
-                  <div style={{ fontWeight: 700, marginBottom: 8, fontSize: 14 }}>{tooltip.region.regionName}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ color: '#aaa' }}>Cases</span>
-                    <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#00C2CB' }}>{tooltip.region.cases.toLocaleString('en-US')}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ color: '#aaa' }}>Trend</span>
-                    <span style={{ color: tooltip.region.evolutionPct >= 0 ? '#EF9F27' : '#639922' }}>
-                      {tooltip.region.evolutionPct >= 0 ? '+' : ''}{tooltip.region.evolutionPct}%
-                    </span>
-                  </div>
-                  <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: 12, color: '#aaa' }}>
-                    {tooltip.region.forecast}
-                  </div>
-                </div>
-              )}
+          <div className={styles.rightCol}>
+            <div className={styles.kpiStrip}>
+              <div className={styles.kpiCell}>
+                <div className={styles.kpiLabel}>Alerts</div>
+                <div className={`${styles.kpiNum} ${styles.kpiAlert}`}>{activeDisease.stats.alert}</div>
+                <div className={styles.kpiDelta}>VS D−1 · {activeDisease.stats.alert > 0 ? `↑ +${activeDisease.stats.alert}` : '= 0'}</div>
+              </div>
+              <div className={styles.kpiCell}>
+                <div className={styles.kpiLabel}>Rising</div>
+                <div className={`${styles.kpiNum} ${styles.kpiUp}`}>{activeDisease.stats.up}</div>
+                <div className={styles.kpiDelta}>VS D−1 · {activeDisease.stats.up > 0 ? `↑ +${activeDisease.stats.up}` : '= 0'}</div>
+              </div>
+              <div className={styles.kpiCell}>
+                <div className={styles.kpiLabel}>Stable</div>
+                <div className={`${styles.kpiNum} ${styles.kpiStable}`}>{activeDisease.stats.stable}</div>
+                <div className={styles.kpiDelta}>VS D−1 · = {activeDisease.stats.stable}</div>
+              </div>
             </div>
 
-            {/* Right panel: KPIs + Legend + Alerts */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, minWidth: 240 }}>
-              {/* KPIs */}
-              <div style={{ display: 'flex', gap: 12 }}>
-                {[
-                  { label: 'Alerts', value: activeDisease.stats.alert, color: '#E24B4A' },
-                  { label: 'Rising', value: activeDisease.stats.up, color: '#EF9F27' },
-                  { label: 'Stable', value: activeDisease.stats.stable, color: '#639922' },
-                ].map(kpi => (
-                  <div key={kpi.label} style={{ flex: 1, background: '#fff', borderRadius: 12, padding: '16px 12px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <div style={{ fontSize: 28, fontWeight: 700, color: '#111', fontFamily: 'Space Grotesk, sans-serif' }}>{kpi.value}</div>
-                    <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>{kpi.label}</div>
-                  </div>
-                ))}
+            <div className={styles.panel}>
+              <div className={styles.panelHead}>
+                <span className={styles.panelTitle}>Incidence level</span>
+                <span>SCALE · PER 100K POP.</span>
               </div>
 
-              {/* Legend */}
-              <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#888', marginBottom: 12 }}>INCIDENCE LEVEL</div>
-                {legendItems.map(item => (
-                  <div key={item.level} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                    <div style={{ width: 14, height: 14, borderRadius: 4, background: LEVEL_COLORS[item.level], flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, color: '#444' }}>{item.label}</span>
+              <div className={styles.legendList}>
+                {[5, 4, 3, 2, 1].map(level => (
+                  <div key={level} className={styles.legendItem}>
+                    <span className={styles.swatch} style={{ background: LEVEL_STYLES[level].stroke, color: LEVEL_STYLES[level].stroke }} />
+                    <span className={styles.legendName}>{LEVEL_LABELS[level as keyof typeof LEVEL_LABELS]}</span>
+                    <span className={styles.legendMeta}>{LEGEND_META[level]}</span>
+                    <span className={styles.legendCount}>{levelCounts[level]}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <div className={styles.panel}>
+              <div className={styles.panelHead}>
+                <span className={styles.panelTitle}>Active alerts</span>
+                <span>WINDOW · 24H</span>
               </div>
 
-              {/* Active Alerts */}
-              <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#888', marginBottom: 12 }}>ACTIVE ALERTS</div>
-                {activeDisease.alerts.length === 0 ? (
-                  <div style={{ fontSize: 13, color: '#aaa' }}>No active alerts</div>
-                ) : activeDisease.alerts.map((alert, i) => (
-                  <div key={i} style={{ borderLeft: `3px solid ${alert.color}`, paddingLeft: 10, marginBottom: 10 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#111' }}>{alert.type}</div>
-                    <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>{alert.regions}</div>
-                    <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{alert.action}</div>
+              {activeDisease.alerts.length === 0 ? (
+                <div className={styles.alertsEmpty}>
+                  <div className={styles.check}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                      <path d="M5 12 L10 17 L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </div>
-                ))}
-              </div>
+                  <div className={styles.alertsLabel}>No active alerts</div>
+                  <div className={styles.alertsSub}>All regions below the epidemic threshold.</div>
+                </div>
+              ) : (
+                <div className={styles.alertsList}>
+                  {activeDisease.alerts.map((alert, index) => (
+                    <div key={`${alert.type}-${index}`} className={styles.alertItem}>
+                      <div>
+                        <div className={styles.alertType}>{alert.type}</div>
+                        <div className={styles.alertRegions}>{alert.regions}</div>
+                        <div className={styles.alertAction}>{alert.action}</div>
+                      </div>
+                      <span className={styles.alertBadge} style={{ color: alert.color }}>
+                        ACTIVE
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Region detail panel */}
-        {selectedRegion && (
-          <RegionDetailPanel region={selectedRegion} onClose={() => setSelectedRegion(null)} />
-        )}
-      </div>
-    </div>
-  )
-}
-
-function RegionDetailPanel({ region, onClose }: { region: RegionData; onClose: () => void }) {
-  const level = region.level as Level
-  const color = LEVEL_COLORS[level]
-  const label = LEVEL_LABELS[level]
-
-  const chartData = {
-    labels: ['D-6', 'D-5', 'D-4', 'D-3', 'D-2', 'D-1', 'Today'],
-    datasets: [{
-      data: region.historique,
-      borderColor: color,
-      backgroundColor: `${color}22`,
-      borderWidth: 2,
-      fill: true,
-      tension: 0.4,
-      pointRadius: 3,
-      pointBackgroundColor: color,
-    }],
-  }
-
-  const chartOptions = {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-      y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 } } },
-    },
-  }
-
-  return (
-    <div style={{
-      width: 320,
-      background: '#ffffff',
-      borderLeft: '1px solid #e8e4dd',
-      padding: 24,
-      overflowY: 'auto',
-      flexShrink: 0,
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-        <div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#111', fontFamily: 'Space Grotesk, sans-serif' }}>{region.regionName}</div>
-          <div style={{ display: 'inline-block', marginTop: 6, padding: '3px 10px', borderRadius: 999, background: `${color}22`, color, fontSize: 12, fontWeight: 600 }}>{label}</div>
+        <div className={styles.statusBar}>
+          <div className={styles.statusNet}>
+            <span>NETWORK · 14,238 NODES</span>
+            <span>UPTIME · 99.97%</span>
+            <span>LATENCY · 3.2s</span>
+          </div>
+          <div>k=15 anonymized · GDPR + LAW 09-08 compliant</div>
         </div>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#999', padding: 4 }}>×</button>
-      </div>
-
-      {/* Main metric */}
-      <div style={{ background: '#f8f5ef', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ fontSize: 36, fontWeight: 700, color: '#111', fontFamily: 'Space Grotesk, sans-serif' }}>
-          {region.cases.toLocaleString('en-US')}
-        </div>
-        <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>reported cases</div>
-        <div style={{ marginTop: 8, fontSize: 14, fontWeight: 600, color: region.evolutionPct >= 0 ? '#EF9F27' : '#639922' }}>
-          {region.evolutionPct >= 0 ? '↑' : '↓'} {Math.abs(region.evolutionPct)}% vs previous period
-        </div>
-      </div>
-
-      {/* Sparkline */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#888', marginBottom: 8 }}>7-DAY TREND</div>
-        <Line data={chartData} options={chartOptions} height={120} />
-      </div>
-
-      {/* Forecast */}
-      <div style={{ marginBottom: 12, padding: 12, background: '#f0f7ff', borderRadius: 8, borderLeft: `3px solid #4a90d9` }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#4a90d9', marginBottom: 4 }}>FORECAST</div>
-        <div style={{ fontSize: 13, color: '#333' }}>{region.forecast}</div>
-      </div>
-
-      {/* Action */}
-      <div style={{ padding: 12, background: `${color}11`, borderRadius: 8, borderLeft: `3px solid ${color}` }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color, marginBottom: 4 }}>RECOMMENDED ACTION</div>
-        <div style={{ fontSize: 13, color: '#333' }}>{region.action}</div>
       </div>
     </div>
   )

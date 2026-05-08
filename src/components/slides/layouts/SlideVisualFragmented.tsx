@@ -182,7 +182,9 @@ const Timeline = ({ t }: { t: number }) => {
   )
 }
 
-export default function SlideVisualFragmented({ isPrint, isAnimated }: { config: SlideConfig; isPrint?: boolean; isAnimated?: boolean }) {
+export default function SlideVisualFragmented({ config, isPrint, isAnimated }: { config: SlideConfig; isPrint?: boolean; isAnimated?: boolean }) {
+  const title = config.title || 'Critical signals already exist.'
+  const subtitle = config.subtitle || 'Healthcare fails to connect them in time.'
   const [t, setT] = useState(0)
 
   useEffect(() => {
@@ -274,6 +276,7 @@ export default function SlideVisualFragmented({ isPrint, isAnimated }: { config:
 
         <Timeline t={t} />
 
+        {/* Corner chrome */}
         <g fontFamily="'JetBrains Mono', ui-monospace, monospace" fill="rgba(150,200,240,0.5)" fontSize="11" letterSpacing="0.18em">
           <text x="60" y="60">PANOPTES // EPIDEMIOLOGICAL LATENCY MAP</text>
           <text x="60" y="80" fill="rgba(255,90,100,0.7)">STATE: FRAGMENTED · SIGNALS UNCORRELATED</text>
@@ -281,13 +284,19 @@ export default function SlideVisualFragmented({ isPrint, isAnimated }: { config:
           <text x="1860" y="80" textAnchor="end" fill="rgba(255,90,100,0.7)">MEAN DETECTION DELAY: 13.4 DAYS</text>
         </g>
 
-        <g fontFamily="'Space Grotesk', sans-serif">
-          <text x="960" y="1000" textAnchor="middle" fill="rgba(220,230,250,0.92)" fontSize="38" letterSpacing="-0.01em">
-            Critical signals already exist.
-          </text>
-          <text x="960" y="1042" textAnchor="middle" fill="rgba(255,90,100,0.85)" fontSize="22" fontStyle="italic" letterSpacing="0.02em">
-            Healthcare fails to connect them in time.
-          </text>
+        {/* Title header — centered top */}
+        <g>
+          <rect x="400" y="14" width="1120" height="170" rx="8"
+            fill="rgba(4,8,22,0.82)" stroke="rgba(255,90,100,0.28)" strokeWidth="1" />
+          <text x="960" y="54" textAnchor="middle"
+            fontFamily="'JetBrains Mono', monospace" fontSize="11" letterSpacing="0.38em"
+            fill="rgba(255,140,150,0.72)">— BLIND SPOT · 12 DAYS LOST —</text>
+          <text x="960" y="122" textAnchor="middle"
+            fontFamily="'Space Grotesk', sans-serif" fontSize="56" letterSpacing="-0.015em"
+            fill="rgba(218,232,255,0.95)">{title}</text>
+          <text x="960" y="163" textAnchor="middle"
+            fontFamily="'Space Grotesk', sans-serif" fontSize="26" fontStyle="italic" letterSpacing="0.015em"
+            fill="rgba(255,90,100,0.88)">{subtitle}</text>
         </g>
       </svg>
     </div>

@@ -74,8 +74,10 @@ function AxisTick({ anim }: { anim: boolean }) {
   )
 }
 
-export default function SlideAchievements({ isPrint, isAnimated }: { config: SlideConfig; isPrint?: boolean; isAnimated?: boolean }) {
+export default function SlideAchievements({ config, isPrint, isAnimated }: { config: SlideConfig; isPrint?: boolean; isAnimated?: boolean }) {
   const anim = isAnimated !== false && !isPrint
+  const titleParts = config.title ? config.title.split(' & ') : null
+  const subtitle = config.subtitle || 'Six years building the operating system for Moroccan pharmacies — from a single-app pilot in 2019 to a four-product portfolio powering thousands of nodes today.'
 
   return (
     <>
@@ -98,10 +100,15 @@ export default function SlideAchievements({ isPrint, isAnimated }: { config: Sli
               Section 06 · Company timeline
             </div>
             <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 68, lineHeight: 1.0, letterSpacing: '-0.025em', color: '#fff', margin: '0 0 14px', whiteSpace: 'nowrap' }}>
-              Achievements <span style={{ color: ACCENT }}>&amp; Traction</span>
+              {titleParts && titleParts.length > 1
+                ? <>{titleParts[0]} <span style={{ color: ACCENT }}>& {titleParts.slice(1).join(' & ')}</span></>
+                : titleParts
+                  ? titleParts[0]
+                  : <>Achievements <span style={{ color: ACCENT }}>&amp; Traction</span></>
+              }
             </h1>
             <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300, fontSize: 19, lineHeight: 1.45, color: 'rgba(232,237,242,0.7)', maxWidth: 760, margin: 0 }}>
-              Six years building the operating system for Moroccan pharmacies — from a single-app pilot in 2019 to a four-product portfolio powering thousands of nodes today.
+              {subtitle}
             </p>
           </div>
 

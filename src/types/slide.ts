@@ -63,6 +63,8 @@ export type SlideLayout =
   | 'investment'
   | 'team'
   | 'closing'
+  | 'visual-argus'
+  | 'achievements'
 
 export interface SlideConfig {
   slideIndex: number
@@ -76,4 +78,5 @@ export interface SlideConfig {
   footer?: { left: string; right: string }
   metrics?: Array<{ label: string; value: string; unit?: string }>
   validationNote?: string
+  hidden?: boolean
 }

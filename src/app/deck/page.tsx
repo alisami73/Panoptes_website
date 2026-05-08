@@ -37,7 +37,9 @@ export default async function DeckPage({ searchParams }: PageProps) {
     orderBy: { slideIndex: 'asc' },
   })
 
-  const slideConfigs = slides.map(s => s.configJson as unknown as SlideConfig)
+  const slideConfigs = slides
+    .map(s => s.configJson as unknown as SlideConfig)
+    .filter(s => !s.hidden)
 
   return <DeckViewer slides={slideConfigs} token={token} />
 }

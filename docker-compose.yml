@@ -36,6 +36,9 @@ services:
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://panoptes.blinkpharmacie.ma}
+      NEXT_PUBLIC_KB_DASHBOARD_URL: ${NEXT_PUBLIC_KB_DASHBOARD_URL:-/api/admin/kb/}
+      KB_DASHBOARD_UPSTREAM: ${KB_DASHBOARD_UPSTREAM:-http://veillesanitaire-kb.francecentral.azurecontainer.io:8010}
+      KB_DASHBOARD_PASSWORD: ${KB_DASHBOARD_PASSWORD}
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
       PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
     depends_on:

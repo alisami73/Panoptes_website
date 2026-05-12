@@ -57,6 +57,9 @@ SMTP_PORT=587
 SMTP_USER=noreply@blinkpharmacie.ma
 SMTP_PASS=MOT_DE_PASSE_SMTP
 NEXT_PUBLIC_APP_URL=https://panoptes.blinkpharmacie.ma
+NEXT_PUBLIC_KB_DASHBOARD_URL=/api/admin/kb/
+KB_DASHBOARD_UPSTREAM=http://veillesanitaire-kb.francecentral.azurecontainer.io:8010
+KB_DASHBOARD_PASSWORD=MOT_DE_PASSE_DU_DASHBOARD_KB
 ```
 
 ### 3. Lancer l'application
@@ -106,6 +109,8 @@ Ajouter chez votre registrar :
 | `https://panoptes.blinkpharmacie.ma/deck?token=XXX` | Viewer de slides |
 | `https://panoptes.blinkpharmacie.ma/admin` | Interface admin      |
 | `https://panoptes.blinkpharmacie.ma/admin/login` | Login admin      |
+| `https://panoptes.blinkpharmacie.ma/admin/knowledge-base` | Admin Knowledge Base |
+| `https://panoptes.blinkpharmacie.ma/api/admin/kb/` | Proxy KB protégé par session admin |
 
 ---
 

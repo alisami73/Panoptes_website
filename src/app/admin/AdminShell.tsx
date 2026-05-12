@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: '/admin/requests', label: 'Demandes', icon: '📬' },
   { href: '/admin/messages', label: 'Messages', icon: '✉' },
   { href: '/admin/map', label: 'Carte épidémio', icon: '🗺' },
+  { href: '/admin/knowledge-base', label: 'Knowledge Base', icon: '🧠' },
 ]
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {

@@ -5,8 +5,6 @@ import { authOptions } from '@/lib/auth'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const DEFAULT_KB_UPSTREAM = 'http://veillesanitaire-kb.francecentral.azurecontainer.io:8010'
-
 type RouteContext = {
   params: {
     path?: string[]
@@ -14,7 +12,7 @@ type RouteContext = {
 }
 
 function getKbUpstreamBase() {
-  return (process.env.KB_DASHBOARD_UPSTREAM || DEFAULT_KB_UPSTREAM).replace(/\/$/, '')
+  return (process.env.KB_DASHBOARD_UPSTREAM || '').replace(/\/$/, '')
 }
 
 function buildTargetUrl(req: NextRequest, pathSegments: string[] = []) {
@@ -43,6 +41,10 @@ function buildUpstreamHeaders(req: NextRequest) {
 async function proxyToKnowledgeBase(req: NextRequest, context: RouteContext) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  if (!getKbUpstreamBase()) {
+    return NextResponse.json({ error: 'KB dashboard upstream is not configured' }, { status: 503 })
+  }
 
   const target = buildTargetUrl(req, context.params.path)
 

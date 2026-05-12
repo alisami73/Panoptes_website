@@ -58,7 +58,7 @@ SMTP_USER=noreply@blinkpharmacie.ma
 SMTP_PASS=MOT_DE_PASSE_SMTP
 NEXT_PUBLIC_APP_URL=https://panoptes.blinkpharmacie.ma
 NEXT_PUBLIC_KB_DASHBOARD_URL=/api/admin/kb/
-KB_DASHBOARD_UPSTREAM=http://veillesanitaire-kb.francecentral.azurecontainer.io:8010
+KB_DASHBOARD_UPSTREAM=URL_PRIVEE_OU_TECHNIQUE_DU_DASHBOARD_KB
 KB_DASHBOARD_PASSWORD=MOT_DE_PASSE_DU_DASHBOARD_KB
 ```
 

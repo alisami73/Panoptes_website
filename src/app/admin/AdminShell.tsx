@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: '/admin/messages', label: 'Messages', icon: '✉' },
   { href: '/admin/map', label: 'Carte épidémio', icon: '🗺' },
   { href: '/admin/knowledge-base', label: 'Knowledge Base', icon: '🧠' },
+  { href: '/admin/knowledge-base-references', label: 'Références', icon: '📄' },
 ]
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {

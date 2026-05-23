@@ -1,0 +1,138 @@
+const BASE = '/api/medindex'
+
+async function req<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(BASE + path, {
+    headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
+    ...init,
+  })
+  if (!res.ok) throw new Error(`MedIndex API ${path} → ${res.status}`)
+  return res.json()
+}
+
+export const medindex = {
+  dashboard: () => req<DashboardData>('/dashboard'),
+
+  list: (params: ListParams) =>
+    req<ListResponse>('/medicaments?' + new URLSearchParams(params as any).toString()),
+
+  get: (id: string) => req<MedicamentDetail>(`/medicaments/${id}`),
+
+  action: (id: string, action: string, notes?: string) =>
+    req(`/medicaments/${id}/action`, { method: 'POST', body: JSON.stringify({ action, notes }) }),
+
+  deleteLink: (mid: string, lid: string) =>
+    req(`/medicaments/${mid}/links/${lid}`, { method: 'DELETE' }),
+
+  updateLinkConfidence: (mid: string, lid: string, confidence: number) =>
+    req(`/medicaments/${mid}/links/${lid}/confidence`, { method: 'PUT', body: JSON.stringify({ confidence }) }),
+
+  createLink: (mid: string, data: CreateLinkData) =>
+    req(`/medicaments/${mid}/links`, { method: 'POST', body: JSON.stringify(data) }),
+
+  updateConceptLabel: (mid: string, conceptId: string, label_fr?: string, label_en?: string) =>
+    req(`/medicaments/${mid}/concepts/${conceptId}/label`, { method: 'PUT', body: JSON.stringify({ label_fr, label_en }) }),
+
+  updateExtractionField: (mid: string, field: string, value: string) =>
+    req(`/medicaments/${mid}/extraction/${field}`, { method: 'PUT', body: JSON.stringify({ value }) }),
+
+  reviewQueue: (status = 'pending', page = 1) =>
+    req<QueueResponse>(`/review-queue?status=${status}&page=${page}`),
+
+  reviewQueueAction: (id: string, action: string, notes?: string, candidate_index?: number) =>
+    req(`/review-queue/${id}/action`, { method: 'POST', body: JSON.stringify({ action, notes, candidate_index }) }),
+
+  reopenQueueItem: (id: string) =>
+    req(`/review-queue/${id}/reopen`, { method: 'POST' }),
+
+  saveManualCandidate: (data: ManualCandidateData) =>
+    req('/review-queue/candidate', { method: 'POST', body: JSON.stringify(data) }),
+}
+
+// ── Types ──────────────────────────────────────────────────────────────────
+
+export interface DashboardData {
+  total_dosages: number
+  untransformed: number
+  extraction_stats: Record<string, number>
+  cost_total: number
+  links_by_method: Record<string, number>
+  pending_review: number
+  fhir_by_validation: Record<string, number>
+  score_bands: Record<string, number>
+  top_problems: Array<{ id: string; name: string; score: number; state: string }>
+}
+
+export interface ListParams {
+  search?: string
+  filterBand?: string
+  filterState?: string
+  filterAtc?: string
+  filterExtraction?: string
+  sortBy?: string
+  sortDir?: string
+  perPage?: number
+  page?: number
+}
+
+export interface MedicamentRow {
+  id: string
+  name: string
+  quality_score_composite: number | null
+  quality_score_extraction: number | null
+  quality_score_terminology: number | null
+  quality_score_projection: number | null
+  validation_state: string | null
+  extraction_state: string | null
+}
+
+export interface ListResponse {
+  data: MedicamentRow[]
+  meta: { current_page: number; last_page: number; total: number; per_page: number; untransformed_count: number }
+}
+
+export interface MedicamentDetail {
+  id: string
+  name: string
+  fhir: Record<string, any> | null
+  dosage: Record<string, any>
+  extraction: Record<string, any> | null
+  links: Record<string, any[]>
+  cuds: any[]
+  scores: Record<string, any> | null
+}
+
+export interface QueueItem {
+  id: string
+  molecule_dosage_id: string
+  source_text: string
+  relationship_type: string
+  status: string
+  candidates: any[]
+  review_notes: string | null
+  reviewed_at: string | null
+  reviewed_by_email: string | null
+  molecule_dosage?: { name: string }
+}
+
+export interface QueueResponse {
+  data: QueueItem[]
+  meta: { current_page: number; last_page: number; total: number; per_page: number }
+}
+
+export interface CreateLinkData {
+  source_text: string
+  code: string
+  system: string
+  label_fr?: string
+  label_en?: string
+  rel_type: string
+}
+
+export interface ManualCandidateData {
+  queue_item_id: string
+  code: string
+  system: string
+  label_fr?: string
+  label_en?: string
+  score?: number
+}

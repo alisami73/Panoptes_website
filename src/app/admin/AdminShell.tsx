@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: '/admin/map', label: 'Carte épidémio', icon: '🗺' },
   { href: '/admin/knowledge-base', label: 'Knowledge Base', icon: '🧠' },
   { href: '/admin/knowledge-base-references', label: 'Références', icon: '📄' },
+  { href: '/admin/medindex', label: 'MedIndex', icon: '💊' },
 ]
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {

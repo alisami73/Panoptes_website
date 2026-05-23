@@ -1,4 +1,4 @@
-const BASE = '/api/medindex'
+const BASE = '/api/admin/medindex'
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(BASE + path, {

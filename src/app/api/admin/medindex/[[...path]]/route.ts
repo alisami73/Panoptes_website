@@ -14,7 +14,12 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
   const token = await auth(req)
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  await initSchema()
+  try {
+    await initSchema()
+  } catch (e: any) {
+    return NextResponse.json({ error: 'DB init failed', detail: e.message }, { status: 500 })
+  }
+
   const db = getPool()
   const segments = ctx.params.path ?? []
   const [seg0, seg1, seg2, seg3] = segments
@@ -180,7 +185,12 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
   return NextResponse.json({ error: 'Not found' }, { status: 404 })
 }
 
-export async function GET(req: NextRequest, ctx: Ctx) { return handle(req, ctx) }
-export async function POST(req: NextRequest, ctx: Ctx) { return handle(req, ctx) }
-export async function PUT(req: NextRequest, ctx: Ctx) { return handle(req, ctx) }
-export async function DELETE(req: NextRequest, ctx: Ctx) { return handle(req, ctx) }
+async function safe(req: NextRequest, ctx: Ctx) {
+  try { return await handle(req, ctx) }
+  catch (e: any) { return NextResponse.json({ error: e.message, stack: e.stack?.split('\n').slice(0,3) }, { status: 500 }) }
+}
+
+export async function GET(req: NextRequest, ctx: Ctx) { return safe(req, ctx) }
+export async function POST(req: NextRequest, ctx: Ctx) { return safe(req, ctx) }
+export async function PUT(req: NextRequest, ctx: Ctx) { return safe(req, ctx) }
+export async function DELETE(req: NextRequest, ctx: Ctx) { return safe(req, ctx) }

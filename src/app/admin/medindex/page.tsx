@@ -140,6 +140,7 @@ export default function MedindexDashboard() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <NavCard href="/admin/medindex/medicaments" icon="💊" title="Médicaments" desc="Liste complète · validation · scores" />
                 <NavCard href="/admin/medindex/review-queue" icon="🔍" title="File de révision" desc={`${data.pending_review} item(s) en attente`} highlight={data.pending_review > 0} />
+                <NavCard href="/admin/medindex/terminology" icon="🧬" title="Terminologie FR/EN" desc="Révision SNOMED CT · cohérence · validation" />
               </div>
             </div>
           </>

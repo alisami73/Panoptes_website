@@ -370,6 +370,119 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
     }
   }
 
+  // ── /concepts ─────────────────────────────────────────────────────────────
+  if (seg0 === 'concepts') {
+
+    // GET /concepts/snomed-lookup?term=xxx
+    if (seg1 === 'snomed-lookup' && method === 'GET') {
+      const url = new URL(req.url)
+      const term = url.searchParams.get('term') ?? ''
+      if (!term) return NextResponse.json({ error: 'term required' }, { status: 400 })
+      try {
+        const r = await fetch(`https://tx.fhir.org/r4/ValueSet/$expand?url=http://snomed.info/sct?fhir_vs&filter=${encodeURIComponent(term)}&count=5`)
+        if (!r.ok) return NextResponse.json({ results: [] })
+        const data = await r.json()
+        const contains = data?.expansion?.contains ?? []
+        return NextResponse.json({ results: contains.map((c: any) => ({ code: c.code, display: c.display ?? term, system: 'http://snomed.info/sct' })) })
+      } catch {
+        return NextResponse.json({ results: [] })
+      }
+    }
+
+    // GET /concepts
+    if (!seg1 && method === 'GET') {
+      const url = new URL(req.url)
+      const page       = Number(url.searchParams.get('page') ?? 1)
+      const perPage    = Number(url.searchParams.get('perPage') ?? 50)
+      const search     = url.searchParams.get('search') ?? ''
+      const srcTable   = url.searchParams.get('source_table') ?? ''
+      const cType      = url.searchParams.get('concept_type') ?? ''
+      const validated  = url.searchParams.get('validated') ?? ''
+      const minConf    = url.searchParams.get('min_confidence') ?? '0'
+      const maxConf    = url.searchParams.get('max_confidence') ?? '1'
+      const offset     = (page - 1) * perPage
+
+      const conds: string[] = []
+      const params: any[] = []
+      let idx = 1
+
+      if (search) {
+        conds.push(`(label_fr ILIKE $${idx} OR label_en ILIKE $${idx} OR primary_code ILIKE $${idx} OR primary_display ILIKE $${idx})`)
+        params.push(`%${search}%`); idx++
+      }
+      if (srcTable)  { conds.push(`source_table = $${idx++}`); params.push(srcTable) }
+      if (cType)     { conds.push(`concept_type = $${idx++}`); params.push(cType) }
+      if (validated === 'yes') { conds.push(`validated_by_human = true`) }
+      if (validated === 'no')  { conds.push(`(validated_by_human IS NULL OR validated_by_human = false)`) }
+      conds.push(`mapping_confidence >= $${idx++}`); params.push(Number(minConf))
+      conds.push(`mapping_confidence <= $${idx++}`); params.push(Number(maxConf))
+
+      const where = conds.length ? `WHERE ${conds.join(' AND ')}` : ''
+      const limitIdx = idx++; params.push(perPage)
+      const offsetIdx = idx++; params.push(offset)
+
+      const [rows, countRow, tables, types, stats] = await Promise.all([
+        db.query(`SELECT * FROM clinical_concepts ${where} ORDER BY mapping_confidence ASC NULLS FIRST, label_fr ASC LIMIT $${limitIdx} OFFSET $${offsetIdx}`, params),
+        db.query(`SELECT COUNT(*) FROM clinical_concepts ${where}`, params.slice(0, -2)),
+        db.query(`SELECT source_table, COUNT(*) as n FROM clinical_concepts WHERE source_table IS NOT NULL GROUP BY source_table ORDER BY n DESC`),
+        db.query(`SELECT concept_type, COUNT(*) as n FROM clinical_concepts GROUP BY concept_type ORDER BY n DESC`),
+        db.query(`SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE validated_by_human=true) as validated, COUNT(*) FILTER (WHERE primary_code='unmapped') as unmapped, COUNT(*) FILTER (WHERE mapping_method='flagged') as flagged FROM clinical_concepts`),
+      ])
+
+      const total = Number(countRow.rows[0].count)
+      return NextResponse.json({
+        data: rows.rows,
+        meta: { current_page: page, last_page: Math.ceil(total / perPage) || 1, total, per_page: perPage },
+        tables: Object.fromEntries(tables.rows.map((r: any) => [r.source_table, Number(r.n)])),
+        types: Object.fromEntries(types.rows.map((r: any) => [r.concept_type, Number(r.n)])),
+        stats: { total: Number(stats.rows[0].total), validated: Number(stats.rows[0].validated), unmapped: Number(stats.rows[0].unmapped), flagged: Number(stats.rows[0].flagged) },
+      })
+    }
+
+    if (seg1) {
+      // PUT /concepts/:id
+      if (!seg2 && method === 'PUT') {
+        const body = await req.json()
+        const fields: string[] = []
+        const params: any[] = []
+        let idx = 1
+        if (body.label_en     !== undefined) { fields.push(`label_en=$${idx++}`);       params.push(body.label_en) }
+        if (body.primary_code !== undefined) { fields.push(`primary_code=$${idx++}`);   params.push(body.primary_code) }
+        if (body.primary_system !== undefined) { fields.push(`primary_system=$${idx++}`); params.push(body.primary_system) }
+        if (body.primary_display !== undefined) { fields.push(`primary_display=$${idx++}`); params.push(body.primary_display) }
+        if (body.mapping_method !== undefined) { fields.push(`mapping_method=$${idx++}`); params.push(body.mapping_method) }
+        if (body.validated_by_human !== undefined) {
+          fields.push(`validated_by_human=$${idx++}`); params.push(body.validated_by_human)
+          fields.push(`validated_by_email=$${idx++}`); params.push((token as any).email ?? null)
+          fields.push(`validated_at=NOW()`)
+        }
+        if (!fields.length) return NextResponse.json({ ok: true })
+        fields.push(`updated_at=NOW()`)
+        params.push(seg1)
+        await db.query(`UPDATE clinical_concepts SET ${fields.join(', ')} WHERE id=$${idx}`, params)
+        return NextResponse.json({ ok: true })
+      }
+
+      // POST /concepts/:id/approve
+      if (seg2 === 'approve' && method === 'POST') {
+        await db.query(
+          `UPDATE clinical_concepts SET validated_by_human=true, validated_by_email=$1, validated_at=NOW(), updated_at=NOW() WHERE id=$2`,
+          [(token as any).email ?? null, seg1]
+        )
+        return NextResponse.json({ ok: true })
+      }
+
+      // POST /concepts/:id/flag
+      if (seg2 === 'flag' && method === 'POST') {
+        await db.query(
+          `UPDATE clinical_concepts SET mapping_method='flagged', validated_by_human=false, validated_by_email=$1, validated_at=NOW(), updated_at=NOW() WHERE id=$2`,
+          [(token as any).email ?? null, seg1]
+        )
+        return NextResponse.json({ ok: true })
+      }
+    }
+  }
+
   return NextResponse.json({ error: 'Not found' }, { status: 404 })
 }
 

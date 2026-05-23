@@ -46,6 +46,21 @@ export const medindex = {
 
   saveManualCandidate: (data: ManualCandidateData) =>
     req('/review-queue/candidate', { method: 'POST', body: JSON.stringify(data) }),
+
+  concepts: (params: ConceptsParams) =>
+    req<ConceptsResponse>('/concepts?' + new URLSearchParams(params as any).toString()),
+
+  approveConcept: (id: string) =>
+    req(`/concepts/${id}/approve`, { method: 'POST' }),
+
+  flagConcept: (id: string) =>
+    req(`/concepts/${id}/flag`, { method: 'POST' }),
+
+  updateConcept: (id: string, data: Partial<ClinicalConcept>) =>
+    req(`/concepts/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  snomedLookup: (term: string) =>
+    req<{ results: SnomedResult[] }>(`/concepts/snomed-lookup?term=${encodeURIComponent(term)}`),
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -135,4 +150,46 @@ export interface ManualCandidateData {
   label_fr?: string
   label_en?: string
   score?: number
+}
+
+export interface ClinicalConcept {
+  id: string
+  concept_type: string | null
+  source_table: string | null
+  label_fr: string | null
+  label_en: string | null
+  primary_system: string | null
+  primary_code: string | null
+  primary_display: string | null
+  mapping_confidence: number | null
+  mapping_method: string | null
+  terminology_version: string | null
+  validated_by_human: boolean
+  validated_by_email: string | null
+  validated_at: string | null
+}
+
+export interface ConceptsParams {
+  page?: number
+  perPage?: number
+  search?: string
+  source_table?: string
+  concept_type?: string
+  validated?: string
+  min_confidence?: number
+  max_confidence?: number
+}
+
+export interface ConceptsResponse {
+  data: ClinicalConcept[]
+  meta: { current_page: number; last_page: number; total: number; per_page: number }
+  tables: Record<string, number>
+  types: Record<string, number>
+  stats: { total: number; validated: number; unmapped: number; flagged: number }
+}
+
+export interface SnomedResult {
+  code: string
+  display: string
+  system: string
 }

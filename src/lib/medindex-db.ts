@@ -83,6 +83,7 @@ export async function initSchema(): Promise<void> {
     CREATE TABLE IF NOT EXISTS clinical_concepts (
       id                  CHAR(36) PRIMARY KEY,
       concept_type        TEXT,
+      source_table        TEXT,
       label_fr            TEXT,
       label_en            TEXT,
       synonyms            JSONB,
@@ -99,6 +100,7 @@ export async function initSchema(): Promise<void> {
       created_at          TIMESTAMPTZ DEFAULT NOW(),
       updated_at          TIMESTAMPTZ DEFAULT NOW()
     );
+    ALTER TABLE clinical_concepts ADD COLUMN IF NOT EXISTS source_table TEXT;
 
     CREATE TABLE IF NOT EXISTS medication_concept_links (
       id                 BIGSERIAL PRIMARY KEY,

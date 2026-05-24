@@ -1,6 +1,7 @@
 import { Pool } from 'pg'
 
 let pool: Pool | null = null
+let schemaInitialized = false
 
 export function getPool(): Pool {
   if (!pool) {
@@ -14,6 +15,7 @@ export function getPool(): Pool {
 }
 
 export async function initSchema(): Promise<void> {
+  if (schemaInitialized) return
   const db = getPool()
   await db.query(`
     CREATE TABLE IF NOT EXISTS molecule_dosages (
@@ -132,4 +134,5 @@ export async function initSchema(): Promise<void> {
       updated_at          TIMESTAMPTZ DEFAULT NOW()
     );
   `)
+  schemaInitialized = true
 }

@@ -67,6 +67,13 @@ export default function MedindexDashboard() {
 
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
+        {/* Navigation — toujours visible */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+          <NavCard href="/admin/medindex/medicaments" icon="💊" title="Médicaments" desc="Liste complète · validation · scores" />
+          <NavCard href="/admin/medindex/review-queue" icon="🔍" title="File de révision" desc={data ? `${data.pending_review} item(s) en attente` : 'File de révision'} highlight={!!data && data.pending_review > 0} />
+          <NavCard href="/admin/medindex/terminology" icon="🧬" title="Terminologie FR/EN" desc="Révision SNOMED CT · cohérence · validation" />
+        </div>
+
         {loading && <div style={{ color: C.muted, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>Chargement…</div>}
         {error && <div style={{ color: C.red, padding: 16, background: 'rgba(255,107,107,0.1)', borderRadius: 8, fontSize: 13 }}>{error}</div>}
 
@@ -81,22 +88,16 @@ export default function MedindexDashboard() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
-              {/* Score bands */}
               <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 24px' }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: C.muted, marginBottom: 16 }}>
-                  BANDES DE QUALITÉ
-                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: C.muted, marginBottom: 16 }}>BANDES DE QUALITÉ</div>
                 <Band color={C.green}  label="Excellent  ≥ 90" count={data.score_bands.green  ?? 0} />
                 <Band color={C.blue}   label="Bon        80–89" count={data.score_bands.blue   ?? 0} />
                 <Band color={C.orange} label="Moyen      60–79" count={data.score_bands.orange ?? 0} />
                 <Band color={C.red}    label="Insuffisant < 60" count={data.score_bands.red    ?? 0} />
               </div>
 
-              {/* Validation states */}
               <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 24px' }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: C.muted, marginBottom: 16 }}>
-                  ÉTATS DE VALIDATION
-                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: C.muted, marginBottom: 16 }}>ÉTATS DE VALIDATION</div>
                 {Object.entries(data.fhir_by_validation).map(([state, n]) => (
                   <div key={state} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: `1px solid ${C.border}`, fontSize: 13 }}>
                     <span style={{ color: C.text, textTransform: 'capitalize' }}>{state ?? 'non défini'}</span>
@@ -105,11 +106,8 @@ export default function MedindexDashboard() {
                 ))}
               </div>
 
-              {/* Extraction stats */}
               <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 24px' }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: C.muted, marginBottom: 16 }}>
-                  EXTRACTION LLM
-                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: C.muted, marginBottom: 16 }}>EXTRACTION LLM</div>
                 {Object.entries(data.extraction_stats).map(([state, n]) => (
                   <div key={state} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: `1px solid ${C.border}`, fontSize: 13 }}>
                     <span style={{ color: state === 'success' ? C.green : state === 'failed' ? C.red : C.orange, textTransform: 'capitalize' }}>{state}</span>
@@ -119,29 +117,15 @@ export default function MedindexDashboard() {
               </div>
             </div>
 
-            {/* Top 10 problems + nav */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 24px' }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: C.muted, marginBottom: 16 }}>
-                  TOP 10 SCORES LES PLUS BAS
-                </div>
-                {data.top_problems.map((p) => (
-                  <Link key={p.id} href={`/admin/medindex/medicaments/${p.id}`}
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${C.border}`, textDecoration: 'none', cursor: 'pointer' }}>
-                    <span style={{ fontSize: 13, color: C.text, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, marginLeft: 12,
-                      color: p.score < 60 ? C.red : p.score < 80 ? C.orange : C.blue }}>
-                      {Math.round(p.score)}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <NavCard href="/admin/medindex/medicaments" icon="💊" title="Médicaments" desc="Liste complète · validation · scores" />
-                <NavCard href="/admin/medindex/review-queue" icon="🔍" title="File de révision" desc={`${data.pending_review} item(s) en attente`} highlight={data.pending_review > 0} />
-                <NavCard href="/admin/medindex/terminology" icon="🧬" title="Terminologie FR/EN" desc="Révision SNOMED CT · cohérence · validation" />
-              </div>
+            <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 24px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: C.muted, marginBottom: 16 }}>TOP 10 SCORES LES PLUS BAS</div>
+              {data.top_problems.map((p) => (
+                <Link key={p.id} href={`/admin/medindex/medicaments/${p.id}`}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${C.border}`, textDecoration: 'none' }}>
+                  <span style={{ fontSize: 13, color: C.text, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, marginLeft: 12, color: p.score < 60 ? C.red : p.score < 80 ? C.orange : C.blue }}>{Math.round(p.score)}</span>
+                </Link>
+              ))}
             </div>
           </>
         )}

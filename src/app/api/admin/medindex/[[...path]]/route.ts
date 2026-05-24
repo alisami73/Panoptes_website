@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
-import { getPool, initSchema } from '@/lib/medindex-db'
+import { getPool } from '@/lib/medindex-db'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,12 +13,6 @@ async function auth(req: NextRequest) {
 async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
   const token = await auth(req)
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  try {
-    await initSchema()
-  } catch (e: any) {
-    return NextResponse.json({ error: 'DB init failed', detail: e.message }, { status: 500 })
-  }
 
   const db = getPool()
   const segments = ctx.params.path ?? []

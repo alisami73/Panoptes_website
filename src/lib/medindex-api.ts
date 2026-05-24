@@ -61,6 +61,9 @@ export const medindex = {
 
   snomedLookup: (term: string) =>
     req<{ results: SnomedResult[] }>(`/concepts/snomed-lookup?term=${encodeURIComponent(term)}`),
+
+  conceptsLookup: (terminology: string, term: string, fr?: string) =>
+    req<{ results: LookupResult[] }>(`/concepts/lookup?terminology=${encodeURIComponent(terminology)}&term=${encodeURIComponent(term)}${fr ? `&fr=${encodeURIComponent(fr)}` : ''}`),
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -211,4 +214,12 @@ export interface SnomedResult {
   code: string
   display: string
   system: string
+}
+
+export interface LookupResult {
+  code: string
+  display: string
+  system: string
+  confidence: number | null
+  reasoning: string | null
 }

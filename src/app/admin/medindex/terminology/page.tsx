@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useCallback } from 'react'
-import { medindex, ClinicalConcept, ConceptsResponse } from '@/lib/medindex-api'
+import { medindex, ClinicalConcept, ConceptsResponse, LookupResult } from '@/lib/medindex-api'
 
 const C = {
   bg: '#0D1B2A',
@@ -60,8 +60,33 @@ function hexToRgb(hex: string) {
   return `${r},${g},${b}`
 }
 
+type LookupTerminology = 'snomed' | 'meddra' | 'rxnorm' | 'ucum'
+
+const TERMINOLOGY_LABELS: Record<LookupTerminology, string> = {
+  snomed: 'SNOMED CT',
+  meddra: 'MedDRA',
+  rxnorm: 'RxNorm',
+  ucum: 'UCUM',
+}
+
+const SYSTEM_MAP: Record<LookupTerminology, string> = {
+  snomed: 'http://snomed.info/sct',
+  meddra: 'http://www.meddra.org',
+  rxnorm: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+  ucum: 'http://unitsofmeasure.org',
+}
+
+function systemToTerminology(system: string): LookupTerminology {
+  if (system.includes('snomed')) return 'snomed'
+  if (system.includes('meddra')) return 'meddra'
+  if (system.includes('rxnorm')) return 'rxnorm'
+  if (system.includes('unitsofmeasure')) return 'ucum'
+  return 'snomed'
+}
+
 interface EditState {
   id: string
+  label_fr: string
   label_en: string
   primary_code: string
   primary_system: string
@@ -80,8 +105,9 @@ export default function TerminologyPage() {
   const [minConf, setMinConf] = useState(0)
   const [maxConf, setMaxConf] = useState(1)
   const [editState, setEditState] = useState<EditState | null>(null)
-  const [snomedResults, setSnomedResults] = useState<{ code: string; display: string }[]>([])
-  const [snomedLoading, setSnomedLoading] = useState(false)
+  const [lookupResults, setLookupResults] = useState<LookupResult[]>([])
+  const [lookupLoading, setLookupLoading] = useState(false)
+  const [lookupTerminology, setLookupTerminology] = useState<LookupTerminology>('snomed')
   const [toast, setToast] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
@@ -131,9 +157,11 @@ export default function TerminologyPage() {
   }
 
   const openEdit = (c: ClinicalConcept) => {
-    setSnomedResults([])
+    setLookupResults([])
+    setLookupTerminology(systemToTerminology(c.primary_system ?? ''))
     setEditState({
       id: c.id,
+      label_fr: c.label_fr ?? '',
       label_en: c.label_en ?? '',
       primary_code: c.primary_code ?? '',
       primary_system: c.primary_system ?? 'http://snomed.info/sct',
@@ -141,21 +169,27 @@ export default function TerminologyPage() {
     })
   }
 
-  const lookupSnomed = async () => {
+  const lookupCandidates = async () => {
     if (!editState?.label_en.trim()) return
-    setSnomedLoading(true)
+    setLookupLoading(true)
+    setLookupResults([])
     try {
-      const r = await medindex.snomedLookup(editState.label_en)
-      setSnomedResults(r.results)
-      if (!r.results.length) notify('SNOMED: aucun résultat')
+      const r = await medindex.conceptsLookup(lookupTerminology, editState.label_en, editState.label_fr || undefined)
+      setLookupResults(r.results)
+      if (!r.results.length) notify(`${TERMINOLOGY_LABELS[lookupTerminology]}: aucun résultat`)
     } catch (e: any) { notify(e.message) }
-    finally { setSnomedLoading(false) }
+    finally { setLookupLoading(false) }
   }
 
-  const pickSnomed = (r: { code: string; display: string }) => {
+  const pickCandidate = (r: LookupResult) => {
     if (!editState) return
-    setEditState({ ...editState, primary_code: r.code, primary_display: r.display, primary_system: 'http://snomed.info/sct' })
-    setSnomedResults([])
+    setEditState({
+      ...editState,
+      primary_code: r.code,
+      primary_display: r.display,
+      primary_system: r.system || SYSTEM_MAP[lookupTerminology],
+    })
+    setLookupResults([])
   }
 
   const saveEdit = async () => {
@@ -393,29 +427,84 @@ export default function TerminologyPage() {
       {/* Edit modal */}
       {editState && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#0F2035', border: `1px solid ${C.border}`, borderRadius: 12, padding: 28, width: 520, maxWidth: '90vw' }}>
-            <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 700, color: '#FFF', margin: '0 0 20px' }}>
+          <div style={{ background: '#0F2035', border: `1px solid ${C.border}`, borderRadius: 12, padding: 28, width: 580, maxWidth: '92vw', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 700, color: '#FFF', margin: '0 0 6px' }}>
               Correction du terme
             </h2>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.muted, marginBottom: 18 }}>
+              {editState.label_fr}
+            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+              {/* Terminology selector */}
+              <div>
+                <label style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.15em', color: C.muted, marginBottom: 8 }}>TERMINOLOGIE CIBLE</label>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {(['snomed', 'meddra', 'rxnorm', 'ucum'] as LookupTerminology[]).map(t => (
+                    <button key={t} onClick={() => { setLookupTerminology(t); setLookupResults([]) }}
+                      style={{
+                        padding: '4px 12px', borderRadius: 20, fontSize: 11, cursor: 'pointer',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        border: `1px solid ${lookupTerminology === t ? C.accent : C.border}`,
+                        background: lookupTerminology === t ? `rgba(0,194,203,0.15)` : 'transparent',
+                        color: lookupTerminology === t ? C.accent : C.muted,
+                      }}>
+                      {TERMINOLOGY_LABELS[t]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* English term + lookup button */}
               <div>
                 <label style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.15em', color: C.muted, marginBottom: 6 }}>TERME ANGLAIS (EN)</label>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <input style={{ ...INPUT, flex: 1 }} value={editState.label_en}
                     onChange={e => setEditState({ ...editState, label_en: e.target.value })}
                     placeholder="Standard English term…" />
-                  <button onClick={lookupSnomed} disabled={snomedLoading}
+                  <button onClick={lookupCandidates} disabled={lookupLoading}
                     style={{ padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', border: `1px solid ${C.accent}`, background: `rgba(0,194,203,0.1)`, color: C.accent, fontFamily: "'JetBrains Mono', monospace", whiteSpace: 'nowrap' }}>
-                    {snomedLoading ? '…' : 'SNOMED ↗'}
+                    {lookupLoading ? '…' : `${TERMINOLOGY_LABELS[lookupTerminology]} ↗`}
                   </button>
                 </div>
-                {snomedResults.length > 0 && (
-                  <div style={{ marginTop: 6, border: `1px solid ${C.border}`, borderRadius: 6, overflow: 'hidden' }}>
-                    {snomedResults.map(r => (
-                      <button key={r.code} onClick={() => pickSnomed(r)}
-                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', background: 'transparent', border: 'none', borderBottom: `1px solid ${C.border}`, color: C.text, cursor: 'pointer', fontSize: 12, fontFamily: "'JetBrains Mono', monospace' " }}>
-                        <span style={{ color: C.accent }}>{r.code}</span> — {r.display}
+
+                {/* GPT candidates picklist */}
+                {lookupResults.length > 0 && (
+                  <div style={{ marginTop: 8, border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden' }}>
+                    {lookupResults.map((r, i) => (
+                      <button key={r.code + i} onClick={() => pickCandidate(r)}
+                        style={{
+                          display: 'block', width: '100%', textAlign: 'left',
+                          padding: '9px 12px', background: i === 0 ? 'rgba(0,194,203,0.06)' : 'transparent',
+                          border: 'none', borderBottom: i < lookupResults.length - 1 ? `1px solid ${C.border}` : 'none',
+                          color: C.text, cursor: 'pointer',
+                        }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          {i === 0 && (
+                            <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", padding: '1px 6px', borderRadius: 10, background: `rgba(0,194,203,0.2)`, color: C.accent, letterSpacing: '0.1em' }}>
+                              BEST
+                            </span>
+                          )}
+                          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.accent }}>{r.code}</span>
+                          <span style={{ fontSize: 12, color: C.text, flex: 1 }}>{r.display}</span>
+                          {r.confidence !== null && (
+                            <span style={{
+                              fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
+                              padding: '1px 7px', borderRadius: 10,
+                              background: `rgba(${hexToRgb(confidenceColor(r.confidence))},0.15)`,
+                              color: confidenceColor(r.confidence),
+                              border: `1px solid rgba(${hexToRgb(confidenceColor(r.confidence))},0.3)`,
+                            }}>
+                              {Math.round(r.confidence * 100)}%
+                            </span>
+                          )}
+                        </div>
+                        {r.reasoning && (
+                          <div style={{ marginTop: 3, fontSize: 10, color: C.muted, fontStyle: 'italic', paddingLeft: i === 0 ? 52 : 0 }}>
+                            {r.reasoning}
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -424,10 +513,12 @@ export default function TerminologyPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.15em', color: C.muted, marginBottom: 6 }}>CODE SNOMED CT</label>
+                  <label style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.15em', color: C.muted, marginBottom: 6 }}>
+                    CODE {TERMINOLOGY_LABELS[lookupTerminology].toUpperCase()}
+                  </label>
                   <input style={INPUT} value={editState.primary_code}
                     onChange={e => setEditState({ ...editState, primary_code: e.target.value })}
-                    placeholder="12345678" />
+                    placeholder="ex: 38341003" />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.15em', color: C.muted, marginBottom: 6 }}>SYSTÈME</label>

@@ -5,7 +5,11 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
     ...init,
   })
-  if (!res.ok) throw new Error(`MedIndex API ${path} → ${res.status}`)
+  if (!res.ok) {
+    let detail = ''
+    try { const b = await res.json(); detail = b?.error ?? '' } catch { /* ignore */ }
+    throw new Error(`MedIndex API ${path} → ${res.status}${detail ? `: ${detail}` : ''}`)
+  }
   return res.json()
 }
 

@@ -302,6 +302,22 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
         }
       }
 
+      // PUT /medicaments/:id/concepts/:conceptId/label
+      if (seg2 === 'concepts' && seg3 && segments[4] === 'label' && method === 'PUT') {
+        const body = await req.json()
+        const fields: string[] = []
+        const params: any[] = []
+        let idx = 1
+        if (body.label_fr !== undefined) { fields.push(`label_fr=$${idx++}`); params.push(body.label_fr) }
+        if (body.label_en !== undefined) { fields.push(`label_en=$${idx++}`); params.push(body.label_en) }
+        if (fields.length) {
+          fields.push(`updated_at=NOW()`)
+          params.push(seg3)
+          await db.query(`UPDATE clinical_concepts SET ${fields.join(', ')} WHERE id=$${idx}`, params)
+        }
+        return NextResponse.json({ ok: true })
+      }
+
       // PUT /medicaments/:id/extraction/:field
       if (seg2 === 'extraction' && seg3 && method === 'PUT') {
         const body = await req.json()
@@ -377,11 +393,49 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
       if (seg2 === 'action' && method === 'POST') {
         const body = await req.json()
         const newStatus = body.action === 'approved' ? 'approved' : body.action === 'rejected' ? 'rejected' : body.action
+
+        // When approving with a specific candidate, apply the link
+        let selectedConceptId: string | null = null
+        if (body.action === 'approved' && typeof body.candidate_index === 'number') {
+          const queueItem = await db.query(
+            `SELECT molecule_dosage_id, relationship_type, source_text, candidates FROM terminology_review_queue WHERE id=$1`,
+            [seg1]
+          )
+          if (queueItem.rows.length) {
+            const qi = queueItem.rows[0]
+            const candidates: any[] = qi.candidates ?? []
+            const candidate = candidates[body.candidate_index]
+            if (candidate?.code && candidate?.system) {
+              const existing = await db.query(
+                `SELECT id FROM clinical_concepts WHERE primary_system=$1 AND primary_code=$2`,
+                [candidate.system, candidate.code]
+              )
+              if (existing.rows.length) {
+                selectedConceptId = existing.rows[0].id
+              } else {
+                const ins = await db.query(`
+                  INSERT INTO clinical_concepts (id, concept_type, label_fr, label_en, primary_system, primary_code, primary_display, mapping_method, terminology_version, mapping_confidence)
+                  VALUES (gen_random_uuid()::text, 'unknown', $1, $2, $3, $4, $5, 'human_curated', 'manual', 1.0)
+                  RETURNING id
+                `, [candidate.label_fr ?? candidate.code, candidate.label_en ?? null, candidate.system, candidate.code, candidate.label_fr ?? candidate.code])
+                selectedConceptId = ins.rows[0].id
+              }
+              if (selectedConceptId) {
+                await db.query(`
+                  INSERT INTO medication_concept_links
+                    (molecule_dosage_id, clinical_concept_id, relationship_type, source_text, mapping_method, confidence, validated_by_human)
+                  VALUES ($1, $2, $3, $4, 'human_curated', 1.0, true)
+                `, [qi.molecule_dosage_id, selectedConceptId, qi.relationship_type, qi.source_text])
+              }
+            }
+          }
+        }
+
         await db.query(`
           UPDATE terminology_review_queue
-          SET status=$1, review_notes=$2, reviewed_at=NOW(), reviewed_by_email=$3
-          WHERE id=$4
-        `, [newStatus, body.notes ?? null, (token as any).email ?? null, seg1])
+          SET status=$1, review_notes=$2, reviewed_at=NOW(), reviewed_by_email=$3, selected_concept_id=$4
+          WHERE id=$5
+        `, [newStatus, body.notes ?? null, (token as any).email ?? null, selectedConceptId, seg1])
         return NextResponse.json({ ok: true })
       }
 
@@ -558,8 +612,8 @@ Return JSON only: {"best_index": <1-based or 0>, "confidence": <0.0-1.0>, "reaso
       if (cType)     { conds.push(`concept_type = $${idx++}`); params.push(cType) }
       if (validated === 'yes') { conds.push(`validated_by_human = true`) }
       if (validated === 'no')  { conds.push(`(validated_by_human IS NULL OR validated_by_human = false)`) }
-      conds.push(`mapping_confidence >= $${idx++}`); params.push(Number(minConf))
-      conds.push(`mapping_confidence <= $${idx++}`); params.push(Number(maxConf))
+      if (url.searchParams.has('min_confidence')) { conds.push(`mapping_confidence >= $${idx++}`); params.push(Number(minConf)) }
+      if (url.searchParams.has('max_confidence')) { conds.push(`mapping_confidence <= $${idx++}`); params.push(Number(maxConf)) }
 
       const where = conds.length ? `WHERE ${conds.join(' AND ')}` : ''
       const limitIdx = idx++; params.push(perPage)

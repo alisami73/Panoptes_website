@@ -8,7 +8,9 @@ export function getPool(): Pool {
     pool = new Pool({
       connectionString: process.env.DATABASE_MEDINDEX_URL,
       ssl: { rejectUnauthorized: false },
-      max: 5,
+      max: 1,                     // serverless: 1 connection par instance
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 5000,
     })
   }
   return pool

@@ -396,18 +396,138 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
   // ── /concepts ─────────────────────────────────────────────────────────────
   if (seg0 === 'concepts') {
 
-    // GET /concepts/snomed-lookup?term=xxx
+    // GET /concepts/lookup?terminology=snomed|meddra|rxnorm|ucum&term=xxx&fr=xxx
+    if (seg1 === 'lookup' && method === 'GET') {
+      const url      = new URL(req.url)
+      const term     = url.searchParams.get('term') ?? ''
+      const frTerm   = url.searchParams.get('fr') ?? term
+      const term_sys = url.searchParams.get('terminology') ?? 'snomed'
+      if (!term) return NextResponse.json({ error: 'term required' }, { status: 400 })
+
+      try {
+        // ── Fetch candidates from terminology API ──────────────────────────
+        let candidates: { code: string; display: string }[] = []
+        let system = 'http://snomed.info/sct'
+
+        if (term_sys === 'snomed') {
+          const qs = new URLSearchParams({ url: 'http://snomed.info/sct?fhir_vs', filter: term, count: '10' })
+          const r = await fetch(`https://tx.fhir.org/r4/ValueSet/$expand?${qs}`)
+          if (r.ok) {
+            const data = await r.json()
+            candidates = (data?.expansion?.contains ?? []).map((c: any) => ({ code: c.code, display: c.display ?? term }))
+          }
+          system = 'http://snomed.info/sct'
+
+        } else if (term_sys === 'meddra') {
+          const qs = new URLSearchParams({ url: 'http://www.meddra.org?fhir_vs', filter: term, count: '10' })
+          const r = await fetch(`https://tx.fhir.org/r4/ValueSet/$expand?${qs}`)
+          if (r.ok) {
+            const data = await r.json()
+            candidates = (data?.expansion?.contains ?? []).map((c: any) => ({ code: c.code, display: c.display ?? term }))
+          }
+          system = 'http://www.meddra.org'
+
+        } else if (term_sys === 'rxnorm') {
+          const r = await fetch(`https://rxnav.nlm.nih.gov/REST/approximateTerm.json?term=${encodeURIComponent(term)}&maxEntries=10`)
+          if (r.ok) {
+            const data = await r.json()
+            candidates = (data?.approximateGroup?.candidate ?? []).map((c: any) => ({ code: c.rxcui, display: c.name }))
+          }
+          system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
+
+        } else if (term_sys === 'ucum') {
+          candidates = [
+            { code: 'mg', display: 'milligram' }, { code: 'g', display: 'gram' },
+            { code: 'ug', display: 'microgram' }, { code: 'ng', display: 'nanogram' },
+            { code: 'pg', display: 'picogram' }, { code: 'ml', display: 'milliliter' },
+            { code: 'l', display: 'liter' }, { code: 'mmol', display: 'millimole' },
+            { code: 'umol', display: 'micromole' }, { code: 'meq', display: 'milliequivalent' },
+            { code: '[iU]', display: 'international unit' }, { code: 'mIU', display: 'milli-international unit' },
+            { code: 'U', display: 'enzyme unit' }, { code: '%', display: 'percent' },
+            { code: 'mg/ml', display: 'milligram per milliliter' }, { code: 'ug/ml', display: 'microgram per milliliter' },
+            { code: 'ng/ml', display: 'nanogram per milliliter' }, { code: 'mmol/l', display: 'millimole per liter' },
+            { code: 'meq/l', display: 'milliequivalent per liter' }, { code: 'mg/kg', display: 'milligram per kilogram' },
+            { code: 'mg/m2', display: 'milligram per square meter' }, { code: 'mg/h', display: 'milligram per hour' },
+            { code: 'ug/h', display: 'microgram per hour' }, { code: 'ml/h', display: 'milliliter per hour' },
+            { code: 'mg/d', display: 'milligram per day' }, { code: 'mg/24h', display: 'milligram per 24 hours' },
+            { code: 'd', display: 'day' }, { code: 'h', display: 'hour' }, { code: 'min', display: 'minute' },
+          ]
+          system = 'http://unitsofmeasure.org'
+        }
+
+        if (candidates.length === 0) return NextResponse.json({ results: [] })
+
+        // ── GPT semantic ranking ───────────────────────────────────────────
+        const endpoint   = process.env.AZURE_OPENAI_ENDPOINT?.replace(/\/$/, '')
+        const apiKey     = process.env.AZURE_OPENAI_KEY
+        const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_GPT4OMINI ?? 'gpt-4o-mini'
+        const apiVersion = process.env.AZURE_OPENAI_API_VERSION ?? '2024-08-01-preview'
+
+        let ranked = candidates.map(c => ({ ...c, system, confidence: null as number | null, reasoning: null as string | null }))
+
+        if (endpoint && apiKey) {
+          const candidateList = candidates.map((c, i) => `${i + 1}. [${c.code}] ${c.display}`).join('\n')
+          const prompt = `You are a clinical terminology expert specializing in ${term_sys.toUpperCase()}.
+
+French medical term: "${frTerm}"
+English translation: "${term}"
+
+Select the best matching ${term_sys.toUpperCase()} concept:
+${candidateList}
+
+Critical rules:
+- Be semantically precise. "hypertension intra-oculaire" → ocular hypertension NOT essential hypertension.
+- If no candidate matches correctly, return best_index: 0 and confidence: 0.0.
+- Confidence: 1.0 = exact match, 0.7 = good, 0.5 = approximate, 0.0 = no match.
+
+Return JSON only: {"best_index": <1-based or 0>, "confidence": <0.0-1.0>, "reasoning": "<one sentence>"}`
+
+          try {
+            const gptRes = await fetch(
+              `${endpoint}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`,
+              {
+                method: 'POST',
+                headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  messages: [{ role: 'user', content: prompt }],
+                  temperature: 0,
+                  max_tokens: 200,
+                  response_format: { type: 'json_object' },
+                }),
+              }
+            )
+            if (gptRes.ok) {
+              const gptData = await gptRes.json()
+              const parsed  = JSON.parse(gptData.choices?.[0]?.message?.content ?? '{}')
+              const bestIdx = (parsed.best_index ?? 0) - 1
+              if (parsed.best_index > 0 && bestIdx < candidates.length) {
+                const best = candidates[bestIdx]
+                ranked = [
+                  { ...best, system, confidence: parsed.confidence, reasoning: parsed.reasoning },
+                  ...candidates.filter((_: any, i: number) => i !== bestIdx).map((c: any) => ({ ...c, system, confidence: null, reasoning: null })),
+                ]
+              }
+            }
+          } catch { /* fallback to unranked results */ }
+        }
+
+        return NextResponse.json({ results: ranked })
+      } catch {
+        return NextResponse.json({ results: [] })
+      }
+    }
+
+    // legacy alias kept for backwards compatibility
     if (seg1 === 'snomed-lookup' && method === 'GET') {
-      const url = new URL(req.url)
+      const url  = new URL(req.url)
       const term = url.searchParams.get('term') ?? ''
       if (!term) return NextResponse.json({ error: 'term required' }, { status: 400 })
       try {
-        const qs = new URLSearchParams({ url: 'http://snomed.info/sct?fhir_vs', filter: term, count: '5' })
-        const r = await fetch(`https://tx.fhir.org/r4/ValueSet/$expand?${qs.toString()}`)
+        const qs = new URLSearchParams({ url: 'http://snomed.info/sct?fhir_vs', filter: term, count: '10' })
+        const r  = await fetch(`https://tx.fhir.org/r4/ValueSet/$expand?${qs.toString()}`)
         if (!r.ok) return NextResponse.json({ results: [] })
         const data = await r.json()
-        const contains = data?.expansion?.contains ?? []
-        return NextResponse.json({ results: contains.map((c: any) => ({ code: c.code, display: c.display ?? term, system: 'http://snomed.info/sct' })) })
+        return NextResponse.json({ results: (data?.expansion?.contains ?? []).map((c: any) => ({ code: c.code, display: c.display ?? term, system: 'http://snomed.info/sct' })) })
       } catch {
         return NextResponse.json({ results: [] })
       }

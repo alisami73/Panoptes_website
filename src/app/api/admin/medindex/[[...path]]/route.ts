@@ -402,7 +402,8 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
       const term = url.searchParams.get('term') ?? ''
       if (!term) return NextResponse.json({ error: 'term required' }, { status: 400 })
       try {
-        const r = await fetch(`https://tx.fhir.org/r4/ValueSet/$expand?url=http://snomed.info/sct?fhir_vs&filter=${encodeURIComponent(term)}&count=5`)
+        const qs = new URLSearchParams({ url: 'http://snomed.info/sct?fhir_vs', filter: term, count: '5' })
+        const r = await fetch(`https://tx.fhir.org/r4/ValueSet/$expand?${qs.toString()}`)
         if (!r.ok) return NextResponse.json({ results: [] })
         const data = await r.json()
         const contains = data?.expansion?.contains ?? []

@@ -109,11 +109,30 @@ export interface MedicamentDetail {
   id: string
   name: string
   fhir: Record<string, any> | null
-  dosage: Record<string, any>
   extraction: Record<string, any> | null
   links: Record<string, any[]>
   cuds: any[]
-  scores: Record<string, any> | null
+  scores: {
+    composite: number | null
+    extraction: number | null
+    terminology: number | null
+    projection: number | null
+    breakdown: {
+      extraction: { llm_confidence: any; validator_score: any; critical_issues: number }
+      terminology: { auto_links: number; total_links: number; avg_confidence: string | null; flagged_links: number }
+      projection: { structural_score: any; avg_codings_per_concept: any; cud_types_present: number }
+    }
+  } | null
+  source: {
+    principles: Array<{ molecule_name: string; dosage: string; unit: string }>
+    indications: string[]
+    contra_indications: string[]
+    precautions: string[]
+    warnings: string[]
+    pregnancy_risks: Array<{ months: string; value: string }>
+    reproductive_healths: string[]
+    posologie: string | null
+  }
 }
 
 export interface QueueItem {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { medindex, QueueItem } from '@/lib/medindex-api'
 
@@ -163,16 +163,25 @@ export default function ReviewQueuePage() {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const statusRef = useRef(status)
+  const pageRef = useRef(page)
+  useEffect(() => { statusRef.current = status }, [status])
+  useEffect(() => { pageRef.current = page }, [page])
 
-  const load = (s = status, p = page) => {
-    setLoading(true)
+  const load = useCallback((s = statusRef.current, p = pageRef.current, silent = false) => {
+    if (!silent) setLoading(true)
     medindex.reviewQueue(s, p)
-      .then(r => { setItems(r.data); setMeta(r.meta) })
+      .then(r => { setItems(r.data); setMeta(r.meta); setError('') })
       .catch(e => setError(e.message))
-      .finally(() => setLoading(false))
-  }
+      .finally(() => { if (!silent) setLoading(false) })
+  }, [])
 
-  useEffect(() => load(), [status, page]) // eslint-disable-line
+  useEffect(() => { load(status, page) }, [status, page]) // eslint-disable-line
+
+  useEffect(() => {
+    const t = setInterval(() => load(statusRef.current, pageRef.current, true), 30000)
+    return () => clearInterval(t)
+  }, [load])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { medindex, MedicamentRow, ListParams } from '@/lib/medindex-api'
 
@@ -52,16 +52,23 @@ export default function MedicamentListPage() {
   const [params, setParams] = useState<ListParams>({ sortBy: 'quality_score_composite', sortDir: 'asc', perPage: 50, page: 1 })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const paramsRef = useRef(params)
+  useEffect(() => { paramsRef.current = params }, [params])
 
-  const load = useCallback((p: ListParams) => {
-    setLoading(true)
+  const load = useCallback((p: ListParams, silent = false) => {
+    if (!silent) setLoading(true)
     medindex.list(p)
-      .then(r => { setRows(r.data); setMeta(r.meta) })
+      .then(r => { setRows(r.data); setMeta(r.meta); setError('') })
       .catch(e => setError(e.message))
-      .finally(() => setLoading(false))
+      .finally(() => { if (!silent) setLoading(false) })
   }, [])
 
   useEffect(() => { load(params) }, [params]) // eslint-disable-line
+
+  useEffect(() => {
+    const t = setInterval(() => load(paramsRef.current, true), 30000)
+    return () => clearInterval(t)
+  }, [load])
 
   const set = (patch: Partial<ListParams>) => setParams(p => ({ ...p, ...patch, page: 1 }))
 

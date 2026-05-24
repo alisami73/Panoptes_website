@@ -164,25 +164,28 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
 
       // GET /medicaments/:id
       if (!seg2 && method === 'GET') {
-        const [md, fhir, extraction, links, cuds] = await Promise.all([
+        const [md, fhir, extraction, links, cuds, details, indications, contraIndications, precautions, warnings, pregnancyRisks, reproductiveHealths, posologie] = await Promise.all([
           db.query(`SELECT * FROM molecule_dosages WHERE id=$1`, [mid]),
           db.query(`SELECT * FROM fhir_medication_knowledge WHERE molecule_dosage_id=$1`, [mid]),
-          db.query(`
-            SELECT * FROM medication_clinical_extractions
-            WHERE molecule_dosage_id=$1 ORDER BY created_at DESC LIMIT 1
-          `, [mid]),
+          db.query(`SELECT * FROM medication_clinical_extractions WHERE molecule_dosage_id=$1 AND extraction_state != 'failed' ORDER BY created_at DESC LIMIT 1`, [mid]),
           db.query(`
             SELECT mcl.*, cc.label_fr as concept_label_fr, cc.label_en as concept_label_en,
               cc.primary_code as concept_primary_code, cc.primary_system as concept_primary_system,
-              cc.primary_display as concept_primary_display
+              cc.primary_display as concept_primary_display, cc.id as concept_id
             FROM medication_concept_links mcl
             LEFT JOIN clinical_concepts cc ON cc.id = mcl.clinical_concept_id
             WHERE mcl.molecule_dosage_id=$1
             ORDER BY mcl.relationship_type, mcl.created_at DESC
           `, [mid]),
-          db.query(`
-            SELECT * FROM fhir_clinical_use_definitions WHERE medication_knowledge_id=$1
-          `, [mid]),
+          db.query(`SELECT * FROM fhir_clinical_use_definitions WHERE medication_knowledge_id=$1`, [mid]),
+          db.query(`SELECT dmd.*, m.name as molecule_name FROM detail_molecule_dosages dmd LEFT JOIN molecules m ON m.id = dmd.molecule_id WHERE dmd.molecule_dosage_id=$1 AND dmd.deleted_at IS NULL`, [mid]),
+          db.query(`SELECT i.*, p.name as pathology_name FROM indications i LEFT JOIN pathologies p ON p.id = i.pathology_id WHERE i.molecule_dosage_id=$1 AND i.is_contra=0 AND i.deleted_at IS NULL`, [mid]),
+          db.query(`SELECT i.*, p.name as pathology_name FROM indications i LEFT JOIN pathologies p ON p.id = i.pathology_id WHERE i.molecule_dosage_id=$1 AND i.is_contra=1 AND i.deleted_at IS NULL`, [mid]),
+          db.query(`SELECT i.*, p.name as pathology_name FROM indications i LEFT JOIN pathologies p ON p.id = i.pathology_id WHERE i.molecule_dosage_id=$1 AND i.is_contra IS NULL AND i.deleted_at IS NULL`, [mid]),
+          db.query(`SELECT * FROM warning_items WHERE molecule_dosage_id=$1 AND deleted_at IS NULL ORDER BY warnings_for_use_id, "order"`, [mid]),
+          db.query(`SELECT * FROM pregnancy_risks WHERE molecule_dosage_id=$1 AND deleted_at IS NULL ORDER BY months`, [mid]),
+          db.query(`SELECT * FROM reproductive_healths WHERE molecule_dosage_id=$1 AND deleted_at IS NULL ORDER BY "order"`, [mid]),
+          db.query(`SELECT * FROM molecule_posologies WHERE molecule_dosage_id=$1 LIMIT 1`, [mid]),
         ])
 
         if (!md.rows.length) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -191,7 +194,6 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
         const f = fhir.rows[0] ?? null
         const e = extraction.rows[0] ?? null
 
-        // Group links by relationship_type
         const groupedLinks: Record<string, any[]> = {}
         for (const l of links.rows) {
           const key = l.relationship_type ?? 'other'
@@ -202,8 +204,8 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
             confidence: l.confidence ? Number(l.confidence) : null,
             mapping_method: l.mapping_method,
             validated_by_human: l.validated_by_human,
-            clinical_concept: l.clinical_concept_id ? {
-              id: l.clinical_concept_id,
+            clinical_concept: l.concept_id ? {
+              id: l.concept_id,
               label_fr: l.concept_label_fr,
               label_en: l.concept_label_en,
               primary_code: l.concept_primary_code,
@@ -213,20 +215,47 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
           })
         }
 
+        const totalLinks = links.rows.length
+        const autoLinks = links.rows.filter((l: any) => l.mapping_method !== 'human_curated' && l.mapping_method !== 'manual').length
+        const avgConf = totalLinks > 0 ? links.rows.reduce((s: number, l: any) => s + Number(l.confidence ?? 0), 0) / totalLinks : null
+        const flaggedLinks = links.rows.filter((l: any) => !l.clinical_concept_id).length
+
         return NextResponse.json({
           id: m.id,
           name: m.name,
           fhir: f,
-          dosage: { name: m.name, link: m.link },
           extraction: e,
           links: groupedLinks,
           cuds: cuds.rows,
           scores: f ? {
-            composite: f.quality_score_composite,
-            extraction: f.quality_score_extraction,
-            terminology: f.quality_score_terminology,
-            projection: f.quality_score_projection,
+            composite: f.quality_score_composite ? Number(f.quality_score_composite) : null,
+            extraction: f.quality_score_extraction ? Number(f.quality_score_extraction) : null,
+            terminology: f.quality_score_terminology ? Number(f.quality_score_terminology) : null,
+            projection: f.quality_score_projection ? Number(f.quality_score_projection) : null,
+            breakdown: {
+              extraction: {
+                llm_confidence: e?.clinical_quality_score?.overall ?? null,
+                validator_score: e?.deterministic_validation?.score ?? null,
+                critical_issues: (e?.deterministic_validation?.issues ?? []).filter((i: any) => i.severity === 'critical').length,
+              },
+              terminology: { auto_links: autoLinks, total_links: totalLinks, avg_confidence: avgConf ? (avgConf * 100).toFixed(0) + '%' : null, flagged_links: flaggedLinks },
+              projection: {
+                structural_score: f?.quality_score_projection ?? null,
+                avg_codings_per_concept: null,
+                cud_types_present: cuds.rows.length,
+              },
+            },
           } : null,
+          source: {
+            principles: details.rows.map((d: any) => ({ molecule_name: d.molecule_name, dosage: d.dosage, unit: d.unit })),
+            indications: indications.rows.map((i: any) => i.pathology_name ?? i.text ?? null).filter(Boolean),
+            contra_indications: contraIndications.rows.map((i: any) => i.pathology_name ?? i.text ?? null).filter(Boolean),
+            precautions: precautions.rows.map((i: any) => i.pathology_name ?? i.text ?? null).filter(Boolean),
+            warnings: warnings.rows.map((w: any) => w.item).filter(Boolean),
+            pregnancy_risks: pregnancyRisks.rows.map((p: any) => ({ months: p.months, value: p.value })),
+            reproductive_healths: reproductiveHealths.rows.map((r: any) => r.value).filter(Boolean),
+            posologie: posologie.rows[0]?.content ?? null,
+          },
         })
       }
 

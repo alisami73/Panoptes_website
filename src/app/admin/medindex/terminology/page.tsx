@@ -84,6 +84,8 @@ export default function TerminologyPage() {
   const [snomedLoading, setSnomedLoading] = useState(false)
   const [toast, setToast] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
+  const [autoRefresh, setAutoRefresh] = useState(true)
 
   const notify = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000) }
 
@@ -92,8 +94,8 @@ export default function TerminologyPage() {
     return () => clearTimeout(t)
   }, [search])
 
-  const load = useCallback(() => {
-    setLoading(true)
+  const load = useCallback((silent = false) => {
+    if (!silent) setLoading(true)
     medindex.concepts({
       page, perPage: 50,
       search: debouncedSearch,
@@ -102,10 +104,17 @@ export default function TerminologyPage() {
       validated: filterValidated,
       min_confidence: minConf,
       max_confidence: maxConf,
-    }).then(setData).catch(e => notify(e.message)).finally(() => setLoading(false))
+    }).then(d => { setData(d); setLastRefresh(new Date()) }).catch(e => notify(e.message)).finally(() => setLoading(false))
   }, [page, debouncedSearch, filterTable, filterType, filterValidated, minConf, maxConf])
 
   useEffect(() => { load() }, [load])
+
+  // Auto-refresh toutes les 30s pendant que le bootstrap tourne
+  useEffect(() => {
+    if (!autoRefresh) return
+    const interval = setInterval(() => load(true), 30000)
+    return () => clearInterval(interval)
+  }, [autoRefresh, load])
 
   const approve = async (id: string) => {
     setBusy(id + '_approve')
@@ -188,9 +197,27 @@ export default function TerminologyPage() {
         <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 20, fontWeight: 700, color: '#FFF', margin: 0 }}>
           Révision Terminologie FR → EN
         </h1>
-        <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.15em', color: C.accent, margin: '4px 0 0' }}>
-          MEDINDEX · SNOMED CT · COHÉRENCE FR/EN
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+          <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.15em', color: C.accent, margin: 0 }}>
+            MEDINDEX · SNOMED CT · COHÉRENCE FR/EN
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => setAutoRefresh(v => !v)} style={{
+              padding: '2px 8px', borderRadius: 10, fontSize: 10, cursor: 'pointer',
+              border: `1px solid ${autoRefresh ? C.green : C.border}`,
+              background: autoRefresh ? `rgba(82,217,160,0.1)` : 'transparent',
+              color: autoRefresh ? C.green : C.muted,
+              fontFamily: "'JetBrains Mono', monospace",
+            }}>
+              {autoRefresh ? '● LIVE' : '○ PAUSE'}
+            </button>
+            {lastRefresh && (
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.muted }}>
+                màj {lastRefresh.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+        </div>
 
         {/* Stats */}
         {stats && (

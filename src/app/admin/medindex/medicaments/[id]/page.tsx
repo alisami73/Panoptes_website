@@ -83,13 +83,14 @@ function SourcePanel({ source, sfx, activeId }: {
   useEffect(() => {
     if (!activeId) return
     const el = document.getElementById(activeId)
-    if (el && panelRef.current) {
-      const top = el.offsetTop - (panelRef.current.offsetTop ?? 0) - 50
-      panelRef.current.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
-      el.style.background = '#fef9c3'
-      el.style.boxShadow = '0 0 0 2px #f59e0b'
-      setTimeout(() => { el.style.background = ''; el.style.boxShadow = '' }, 2800)
-    }
+    if (!el || !panelRef.current) return
+    const containerRect = panelRef.current.getBoundingClientRect()
+    const elRect = el.getBoundingClientRect()
+    const targetScrollTop = panelRef.current.scrollTop + (elRect.top - containerRect.top) - 50
+    panelRef.current.scrollTo({ top: Math.max(0, targetScrollTop), behavior: 'smooth' })
+    el.style.background = '#fef9c3'
+    el.style.boxShadow = '0 0 0 2px #f59e0b'
+    setTimeout(() => { el.style.background = ''; el.style.boxShadow = '' }, 2800)
   }, [activeId])
 
   const Section = ({ id, label, labelColor, children }: { id: string; label: string; labelColor?: string; children: React.ReactNode }) => (
@@ -248,13 +249,13 @@ function ExtractionTab({ data, mid, source, onRefresh }: { data: MedicamentDetai
 
   const fieldSrcId = (field: string) => {
     if (['medication_label','is_combination_product','form','presentation','dose_form_inferred'].includes(field)) return 'src-principle'
-    if (['patient_blocks','dose_unit','dose_value','dose_route','administration_route','treatment_duration'].includes(field)) return 'src-posologie'
-    if (field.includes('indication') && !field.includes('contra')) return 'src-indications'
+    if (['patient_blocks','dose_unit','dose_value','dose_route','administration_route','treatment_duration','posologie'].includes(field)) return 'src-posologie'
+    if ((field.includes('indication') && !field.includes('contra')) || field === 'indication_guidelines') return 'src-indications'
     if (field.includes('contra') || field.startsWith('ci_')) return 'src-ci'
     if (field.includes('precaution')) return 'src-precautions'
-    if (['adverse_effects','side_effects','warnings','warning_items'].includes(field)) return 'src-warnings'
-    if (field.includes('pregnanc') || field.includes('grossesse')) return 'src-pregnancy'
-    if (field.includes('breastfeed') || field.includes('allaitement') || field.includes('lactat')) return 'src-allaitement'
+    if (['adverse_effects','side_effects','warnings','warning_items','warnings_summary','adverse_reactions'].includes(field) || field.includes('warning') || field.includes('adverse')) return 'src-warnings'
+    if (field.includes('pregnanc') || field.includes('grossesse') || field === 'pregnancy_risk') return 'src-pregnancy'
+    if (field.includes('breastfeed') || field.includes('allaitement') || field.includes('lactat') || field.includes('reproduct')) return 'src-allaitement'
     return ''
   }
 

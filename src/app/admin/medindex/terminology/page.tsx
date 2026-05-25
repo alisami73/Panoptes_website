@@ -348,7 +348,7 @@ export default function TerminologyPage() {
                             style={{ color: C.accent, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, textDecoration: 'none' }}>
                             {c.primary_code}
                           </a>
-                          <div style={{ color: C.muted, fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }} title={c.primary_display ?? ''}>
+                          <div style={{ color: C.muted, fontSize: 11, wordBreak: 'break-word', maxWidth: 180 }}>
                             {c.primary_display}
                           </div>
                         </>

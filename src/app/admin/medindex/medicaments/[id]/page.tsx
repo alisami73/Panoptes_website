@@ -101,12 +101,12 @@ function SourcePanel({ source, sfx, activeId }: {
   )
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', maxHeight: '80vh', boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+    <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
       <div style={{ padding: '12px 20px', borderBottom: '1px solid #f3f4f6', flexShrink: 0 }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>Source — Base de données <span style={{ color: '#9ca3af', fontWeight: 400 }}>(originale)</span></div>
         <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 2 }}>La section correspondante s'illumine au clic ←</div>
       </div>
-      <div ref={panelRef} style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+      <div ref={panelRef} style={{ flex: 1, padding: '16px' }}>
 
         <Section id={`src-principle${sfx}`} label="Principe actif">
           {source.principles.length ? source.principles.map((p, i) => (
@@ -285,7 +285,7 @@ function ExtractionTab({ data, mid, source, onRefresh }: { data: MedicamentDetai
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
       {/* LEFT — VSCode dark panel */}
-      <div style={{ background: VSC.bg, borderRadius: 12, border: `1px solid ${VSC.border}`, display: 'flex', flexDirection: 'column', maxHeight: '80vh' }}>
+      <div style={{ background: VSC.bg, borderRadius: 12, border: `1px solid ${VSC.border}`, display: 'flex', flexDirection: 'column' }}>
         <div style={{ background: VSC.panel, borderBottom: `1px solid ${VSC.border}`, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0, borderRadius: '12px 12px 0 0' }}>
           <div>
             <span style={{ fontSize: 13, fontWeight: 600, color: '#cccccc', fontFamily: "'JetBrains Mono',monospace" }}>Extraction LLM</span>
@@ -300,7 +300,7 @@ function ExtractionTab({ data, mid, source, onRefresh }: { data: MedicamentDetai
             }}>{data.extraction.extraction_state ?? '—'}</span>
           )}
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', paddingTop: 8 }}>
+        <div style={{ flex: 1, paddingTop: 8 }}>
           {toast && <div style={{ margin: '4px 14px 8px', padding: '6px 12px', borderRadius: 6, fontSize: 12, background: 'rgba(78,201,176,0.1)', color: VSC.green }}>{toast}</div>}
           {!data.extraction ? (
             <p style={{ padding: '24px 16px', color: VSC.muted, fontSize: 13 }}>Aucune extraction disponible.</p>
@@ -397,7 +397,7 @@ function MappingTab({ data, mid, source, onRefresh }: { data: MedicamentDetail; 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
       {/* LEFT */}
-      <div style={{ background: VSC.bg, borderRadius: 12, border: `1px solid ${VSC.border}`, display: 'flex', flexDirection: 'column', maxHeight: '80vh' }}>
+      <div style={{ background: VSC.bg, borderRadius: 12, border: `1px solid ${VSC.border}`, display: 'flex', flexDirection: 'column' }}>
         <div style={{ background: VSC.panel, borderBottom: `1px solid ${VSC.border}`, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0, borderRadius: '12px 12px 0 0' }}>
           <div>
             <span style={{ fontSize: 13, fontWeight: 600, color: '#cccccc', fontFamily: "'JetBrains Mono',monospace" }}>Couche B — Mapping</span>
@@ -405,7 +405,7 @@ function MappingTab({ data, mid, source, onRefresh }: { data: MedicamentDetail; 
           </div>
           <button onClick={() => setShowManual(true)} style={{ fontSize: 11, padding: '4px 12px', borderRadius: 4, background: '#0e639c', color: '#fff', border: 'none', cursor: 'pointer' }}>+ Lien manuel</button>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div style={{ flex: 1 }}>
           {toast && <div style={{ margin: '8px 14px', padding: '6px 12px', borderRadius: 6, fontSize: 12, background: 'rgba(78,201,176,0.1)', color: VSC.green }}>{toast}</div>}
           {showManual && (
             <div style={{ margin: '8px', padding: 12, borderRadius: 6, background: VSC.panel, border: `1px solid #4e9ed4` }}>
@@ -548,7 +548,7 @@ function FhirTab({ data, source }: { data: MedicamentDetail; source: MedicamentD
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      <div style={{ background: VSC.bg, borderRadius: 12, border: `1px solid ${VSC.border}`, display: 'flex', flexDirection: 'column', maxHeight: '80vh' }}>
+      <div style={{ background: VSC.bg, borderRadius: 12, border: `1px solid ${VSC.border}`, display: 'flex', flexDirection: 'column' }}>
         <div style={{ background: VSC.panel, borderBottom: `1px solid ${VSC.border}`, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0, borderRadius: '12px 12px 0 0' }}>
           <div>
             <span style={{ fontSize: 13, fontWeight: 600, color: '#cccccc', fontFamily: "'JetBrains Mono',monospace" }}>Couche C — FHIR R5</span>
@@ -558,7 +558,7 @@ function FhirTab({ data, source }: { data: MedicamentDetail; source: MedicamentD
             <button onClick={handleDownload} style={{ fontSize: 11, padding: '4px 12px', borderRadius: 4, background: VSC.panel, color: VSC.key, border: `1px solid ${VSC.border}`, cursor: 'pointer' }}>↓ .json</button>
           )}
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', paddingTop: 8 }}>
+        <div style={{ flex: 1, paddingTop: 8 }}>
           {!data.fhir ? (
             <p style={{ padding: '24px 16px', color: VSC.muted, fontSize: 13 }}>Aucune ressource FHIR.</p>
           ) : Object.entries(resource).map(([key, val]) => {
@@ -600,12 +600,12 @@ function CudsTab({ data, source }: { data: MedicamentDetail; source: MedicamentD
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      <div style={{ background: VSC.bg, borderRadius: 12, border: `1px solid ${VSC.border}`, display: 'flex', flexDirection: 'column', maxHeight: '80vh' }}>
+      <div style={{ background: VSC.bg, borderRadius: 12, border: `1px solid ${VSC.border}`, display: 'flex', flexDirection: 'column' }}>
         <div style={{ background: VSC.panel, borderBottom: `1px solid ${VSC.border}`, padding: '10px 16px', flexShrink: 0, borderRadius: '12px 12px 0 0' }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#cccccc', fontFamily: "'JetBrains Mono',monospace" }}>ClinicalUseDefinition</span>
           <span style={{ fontSize: 10, color: VSC.muted, marginLeft: 8 }}>({data.cuds.length} ressources) — cliquez pour localiser →</span>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
+        <div style={{ flex: 1, padding: '8px' }}>
           {data.cuds.length === 0 ? (
             <p style={{ padding: '24px 8px', color: VSC.muted, fontSize: 13 }}>Aucune ClinicalUseDefinition.</p>
           ) : data.cuds.map((cud: any) => {

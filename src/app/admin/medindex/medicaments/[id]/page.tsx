@@ -2,7 +2,8 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { medindex, MedicamentDetail } from '@/lib/medindex-api'
+import { medindex, MedicamentDetail, RxNormTtyEntry } from '@/lib/medindex-api'
+import { detectNfcCode } from '@/lib/nfc-codes'
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
@@ -340,6 +341,231 @@ function ExtractionTab({ data, mid, source, onRefresh }: { data: MedicamentDetai
   )
 }
 
+// ── Drug coding section (NFC + EDQM + RxNorm TTYs) ───────────────────────────
+
+const TTY_ORDER = ['IN', 'PIN', 'MIN', 'SCDF', 'SCDG', 'SCD']
+const TTY_COLOR: Record<string, string> = {
+  IN: '#9cdcfe', PIN: '#4fc3f7', MIN: '#4fc3f7',
+  SCDF: '#dcdcaa', SCDG: '#dcdcaa', SCD: '#4ec9b0',
+}
+
+interface MolTtyState {
+  loading: boolean
+  ttys: RxNormTtyEntry[]
+  matched: string | null
+  searchMode: boolean
+  searchQ: string
+  searchLoading: boolean
+  searchResults: Array<{ rxcui: string; name: string; score: number }>
+}
+
+function DrugCodingSection({ mid, data }: { mid: string; data: MedicamentDetail }) {
+  const [nfcLoading, setNfcLoading] = useState(true)
+  const [nfcFromProducts, setNfcFromProducts] = useState<Array<{ code: string; count: number }>>([])
+  const [molStates, setMolStates] = useState<Record<string, MolTtyState>>({})
+
+  const principles = data.source.principles
+  const fhirDoseForm = data.fhir?.resource?.doseForm ?? null
+  const edqm = fhirDoseForm?.coding?.[0] ?? null
+
+  useEffect(() => {
+    medindex.nfcLookup(mid)
+      .then(r => setNfcFromProducts(r.nfc_from_products))
+      .catch(() => {})
+      .finally(() => setNfcLoading(false))
+
+    const init: Record<string, MolTtyState> = {}
+    for (const p of principles) {
+      init[p.molecule_name] = { loading: true, ttys: [], matched: null, searchMode: false, searchQ: '', searchLoading: false, searchResults: [] }
+    }
+    setMolStates(init)
+
+    for (const p of principles) {
+      medindex.rxnormLookup(p.molecule_name)
+        .then(r => setMolStates(prev => ({ ...prev, [p.molecule_name]: { ...prev[p.molecule_name], loading: false, ttys: r.ttys, matched: r.matched } })))
+        .catch(() => setMolStates(prev => ({ ...prev, [p.molecule_name]: { ...prev[p.molecule_name], loading: false } })))
+    }
+  }, [mid]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const doSearch = async (molName: string) => {
+    const s = molStates[molName]
+    if (!s || !s.searchQ) return
+    setMolStates(prev => ({ ...prev, [molName]: { ...prev[molName], searchLoading: true, searchResults: [] } }))
+    try {
+      const r = await medindex.rxnormSearch(s.searchQ)
+      setMolStates(prev => ({ ...prev, [molName]: { ...prev[molName], searchLoading: false, searchResults: r.results } }))
+    } catch {
+      setMolStates(prev => ({ ...prev, [molName]: { ...prev[molName], searchLoading: false } }))
+    }
+  }
+
+  const pickSearchResult = async (molName: string, rxcui: string, name: string) => {
+    setMolStates(prev => ({ ...prev, [molName]: { ...prev[molName], searchLoading: true, searchResults: [], searchMode: false } }))
+    const r = await medindex.rxnormLookup(name)
+    setMolStates(prev => ({ ...prev, [molName]: { ...prev[molName], searchLoading: false, ttys: r.ttys, matched: r.matched } }))
+  }
+
+  // NFC: primary from products, fallback keyword
+  const topNfc = nfcFromProducts[0]?.code ?? null
+  const keywordNfc = topNfc ? null : detectNfcCode(data.name)
+
+  return (
+    <div style={{ background: '#181818', borderRadius: 10, border: `1px solid ${VSC.border}`, marginBottom: 16, overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ background: VSC.panel, padding: '10px 16px', borderBottom: `1px solid ${VSC.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#cccccc', fontFamily: "'JetBrains Mono',monospace" }}>Drug Coding</span>
+        <span style={{ fontSize: 10, color: VSC.muted, fontStyle: 'italic' }}>NFC · EDQM · RxNorm TTYs — hors marques</span>
+      </div>
+
+      <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+        {/* ── Form codes row ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+
+          {/* NFC */}
+          <div style={{ background: '#1e1e2e', borderRadius: 8, padding: '8px 12px', border: `1px solid #3c3c5a` }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', color: '#6b6b9a', textTransform: 'uppercase', marginBottom: 4 }}>NFC — Forme pharmaceutique</div>
+            {nfcLoading ? (
+              <span style={{ color: VSC.muted, fontSize: 11 }}>…</span>
+            ) : topNfc ? (
+              <div>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 700, fontSize: 15, color: '#c586c0', marginRight: 8 }}>{topNfc}</span>
+                <span style={{ fontSize: 11, color: VSC.text }}>
+                  {detectNfcCode(data.name)?.labelFr ?? ''}
+                </span>
+                {nfcFromProducts.length > 1 && (
+                  <div style={{ marginTop: 4, display: 'flex', gap: 4 }}>
+                    {nfcFromProducts.slice(1).map(n => (
+                      <span key={n.code} style={{ fontSize: 10, color: VSC.muted, fontFamily: "'JetBrains Mono',monospace" }}>{n.code} ({n.count})</span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ fontSize: 10, color: '#6b6b9a', marginTop: 2 }}>source: {nfcFromProducts[0].count} produit(s)</div>
+              </div>
+            ) : keywordNfc ? (
+              <div>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 700, fontSize: 15, color: '#c586c0', marginRight: 8 }}>{keywordNfc.code}</span>
+                <span style={{ fontSize: 11, color: VSC.text }}>{keywordNfc.labelFr}</span>
+                <div style={{ fontSize: 10, color: VSC.orange, marginTop: 2 }}>source: détection par mot-clé ({keywordNfc.confidence})</div>
+              </div>
+            ) : (
+              <span style={{ fontSize: 11, color: VSC.red }}>— non détecté</span>
+            )}
+          </div>
+
+          {/* EDQM */}
+          <div style={{ background: '#1e1e2e', borderRadius: 8, padding: '8px 12px', border: `1px solid #3c3c5a` }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', color: '#6b6b9a', textTransform: 'uppercase', marginBottom: 4 }}>EDQM — Dose Form (SPOR)</div>
+            {edqm ? (
+              <div>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 700, fontSize: 13, color: VSC.num, marginRight: 8 }}>{edqm.code}</span>
+                <span style={{ fontSize: 11, color: VSC.text }}>{edqm.display}</span>
+                <div style={{ fontSize: 10, color: '#6b6b9a', marginTop: 2 }}>system: SPOR EMA</div>
+              </div>
+            ) : (
+              <span style={{ fontSize: 11, color: VSC.muted }}>— (FHIR non transformé)</span>
+            )}
+          </div>
+        </div>
+
+        {/* ── Per-molecule TTY tables ── */}
+        {principles.map(p => {
+          const ms = molStates[p.molecule_name]
+          const hasTtys = ms && ms.ttys.length > 0
+          const noMatch = ms && !ms.loading && !hasTtys
+
+          return (
+            <div key={p.molecule_name} style={{ background: '#161616', borderRadius: 8, border: `1px solid ${VSC.border}`, overflow: 'hidden' }}>
+              {/* Molecule header */}
+              <div style={{ background: VSC.panel, padding: '7px 12px', display: 'flex', alignItems: 'baseline', gap: 10, borderBottom: `1px solid ${VSC.border}` }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: VSC.key, fontFamily: "'JetBrains Mono',monospace" }}>{p.molecule_name}</span>
+                {p.dosage && <span style={{ fontSize: 11, color: VSC.num }}>{p.dosage}</span>}
+                {p.unit  && <span style={{ fontSize: 11, color: VSC.muted }}>{p.unit}</span>}
+                <span style={{ fontSize: 10, color: '#4b4b4b', marginLeft: 'auto' }}>UCUM: {p.unit ?? '—'}</span>
+              </div>
+
+              {ms?.loading ? (
+                <div style={{ padding: '10px 12px', color: VSC.muted, fontSize: 11 }}>Lookup RxNorm…</div>
+              ) : hasTtys ? (
+                <div>
+                  {/* TTY table */}
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: "'JetBrains Mono',monospace" }}>
+                    <thead>
+                      <tr style={{ background: '#1a1a1a' }}>
+                        <th style={{ padding: '4px 12px', textAlign: 'left', color: VSC.muted, fontWeight: 600, width: 60 }}>TTY</th>
+                        <th style={{ padding: '4px 12px', textAlign: 'left', color: VSC.muted, fontWeight: 600, width: 90 }}>RxCUI</th>
+                        <th style={{ padding: '4px 12px', textAlign: 'left', color: VSC.muted, fontWeight: 600 }}>Nom RxNorm</th>
+                        <th style={{ padding: '4px 12px', textAlign: 'left', color: VSC.muted, fontWeight: 600, width: 140 }}>Type</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {TTY_ORDER.flatMap(tty => {
+                        const rows = ms.ttys.filter(t => t.tty === tty)
+                        return rows.map((t, i) => (
+                          <tr key={`${t.tty}-${t.rxcui}`} style={{ borderTop: `1px solid ${VSC.border}`, background: i === 0 ? 'transparent' : '#181818' }}>
+                            <td style={{ padding: '5px 12px' }}>
+                              <span style={{ background: `${TTY_COLOR[t.tty] ?? '#888'}22`, color: TTY_COLOR[t.tty] ?? '#888', padding: '1px 6px', borderRadius: 4, fontWeight: 700, fontSize: 10 }}>{t.tty}</span>
+                            </td>
+                            <td style={{ padding: '5px 12px', color: VSC.num }}>{t.rxcui}</td>
+                            <td style={{ padding: '5px 12px', color: VSC.text, wordBreak: 'break-word' }}>{t.name}</td>
+                            <td style={{ padding: '5px 12px', color: VSC.muted, fontSize: 10 }}>{t.ttyLabel}</td>
+                          </tr>
+                        ))
+                      })}
+                    </tbody>
+                  </table>
+                  {/* Search button */}
+                  <div style={{ padding: '6px 12px', background: '#181818', borderTop: `1px solid ${VSC.border}` }}>
+                    <button onClick={() => setMolStates(prev => ({ ...prev, [p.molecule_name]: { ...prev[p.molecule_name], searchMode: !prev[p.molecule_name].searchMode } }))}
+                      style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: 'none', color: VSC.muted, border: `1px solid ${VSC.border}`, cursor: 'pointer' }}>
+                      🔍 Rechercher autre terme
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ padding: '8px 12px', color: VSC.orange, fontSize: 11 }}>Aucun résultat RxNorm — {noMatch ? 'nom non reconnu' : ''}</div>
+              )}
+
+              {/* Manual search panel */}
+              {ms?.searchMode && (
+                <div style={{ padding: '10px 12px', background: '#1a1a1a', borderTop: `1px solid ${VSC.border}` }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                    <input
+                      value={ms.searchQ}
+                      onChange={e => setMolStates(prev => ({ ...prev, [p.molecule_name]: { ...prev[p.molecule_name], searchQ: e.target.value } }))}
+                      onKeyDown={e => e.key === 'Enter' && doSearch(p.molecule_name)}
+                      placeholder="Rechercher dans RxNorm…"
+                      style={{ flex: 1, background: VSC.border, color: VSC.text, border: `1px solid #555`, borderRadius: 4, padding: '4px 8px', fontSize: 11 }}
+                    />
+                    <button onClick={() => doSearch(p.molecule_name)}
+                      style={{ fontSize: 11, padding: '4px 10px', borderRadius: 4, background: '#0e639c', color: '#fff', border: 'none', cursor: 'pointer' }}>
+                      {ms.searchLoading ? '…' : 'Chercher'}
+                    </button>
+                  </div>
+                  {ms.searchResults.length > 0 && (
+                    <div style={{ maxHeight: 180, overflowY: 'auto', border: `1px solid ${VSC.border}`, borderRadius: 4 }}>
+                      {ms.searchResults.map(r => (
+                        <div key={r.rxcui} onClick={() => pickSearchResult(p.molecule_name, r.rxcui, r.name)}
+                          style={{ padding: '5px 10px', borderBottom: `1px solid ${VSC.border}`, cursor: 'pointer', display: 'flex', gap: 10, alignItems: 'baseline' }}
+                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(79,195,247,0.08)'}
+                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
+                          <span style={{ color: VSC.num, fontSize: 10, minWidth: 60, fontFamily: "'JetBrains Mono',monospace" }}>{r.rxcui}</span>
+                          <span style={{ color: VSC.text, fontSize: 11 }}>{r.name}</span>
+                          <span style={{ color: VSC.muted, fontSize: 10, marginLeft: 'auto' }}>score: {r.score}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Couche B tab ──────────────────────────────────────────────────────────────
 
 function MappingTab({ data, mid, source, onRefresh }: { data: MedicamentDetail; mid: string; source: MedicamentDetail['source']; onRefresh: () => void }) {
@@ -395,7 +621,13 @@ function MappingTab({ data, mid, source, onRefresh }: { data: MedicamentDetail; 
   const allLinks = Object.entries(data.links)
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+      {/* ── Drug Coding ── */}
+      <DrugCodingSection mid={mid} data={data} />
+
+      {/* ── Clinical concept links ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
       {/* LEFT */}
       <div style={{ background: VSC.bg, borderRadius: 12, border: `1px solid ${VSC.border}`, display: 'flex', flexDirection: 'column' }}>
         <div style={{ background: VSC.panel, borderBottom: `1px solid ${VSC.border}`, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0, borderRadius: '12px 12px 0 0' }}>
@@ -521,6 +753,7 @@ function MappingTab({ data, mid, source, onRefresh }: { data: MedicamentDetail; 
         </div>
       </div>
       <SourcePanel source={source} sfx="-b" activeId={activeSrc} />
+      </div>
     </div>
   )
 }

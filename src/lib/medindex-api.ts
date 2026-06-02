@@ -68,6 +68,15 @@ export const medindex = {
 
   conceptsLookup: (terminology: string, term: string, fr?: string) =>
     req<{ results: LookupResult[] }>(`/concepts/lookup?terminology=${encodeURIComponent(terminology)}&term=${encodeURIComponent(term)}${fr ? `&fr=${encodeURIComponent(fr)}` : ''}`),
+
+  nfcLookup: (molecule_dosage_id: string) =>
+    req<NfcLookupResult>(`/nfc/lookup?molecule_dosage_id=${encodeURIComponent(molecule_dosage_id)}`),
+
+  rxnormLookup: (name: string) =>
+    req<RxNormLookupResult>(`/rxnorm/lookup?name=${encodeURIComponent(name)}`),
+
+  rxnormSearch: (q: string) =>
+    req<{ results: RxNormSearchResult[] }>(`/rxnorm/search?q=${encodeURIComponent(q)}`),
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -226,4 +235,27 @@ export interface LookupResult {
   system: string
   confidence: number | null
   reasoning: string | null
+}
+
+export interface NfcLookupResult {
+  nfc_from_products: Array<{ code: string; count: number }>
+  molecule_dosage_name: string | null
+}
+
+export interface RxNormTtyEntry {
+  tty: string
+  ttyLabel: string
+  rxcui: string
+  name: string
+}
+
+export interface RxNormLookupResult {
+  ttys: RxNormTtyEntry[]
+  matched: string | null
+}
+
+export interface RxNormSearchResult {
+  rxcui: string
+  name: string
+  score: number
 }

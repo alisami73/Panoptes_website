@@ -681,6 +681,101 @@ Return JSON only: {"best_index": <1-based or 0>, "confidence": <0.0-1.0>, "reaso
     }
   }
 
+  // ── GET /nfc/lookup?molecule_dosage_id={id} ───────────────────────────────
+  if (seg0 === 'nfc' && seg1 === 'lookup' && method === 'GET') {
+    const url = new URL(req.url)
+    const mid = url.searchParams.get('molecule_dosage_id')
+    if (!mid) return NextResponse.json({ error: 'molecule_dosage_id required' }, { status: 400 })
+
+    // Primary: most-voted NFC code from brand products sharing the same molecules+dosage
+    const { rows: nfcRows } = await db.query(`
+      SELECT p.nfc_code, COUNT(*) AS cnt
+      FROM detail_molecule_dosages dmd
+      JOIN product_molecules pm ON pm.molecule_id = dmd.molecule_id
+      JOIN products p ON p.id = pm.product_id
+      WHERE dmd.molecule_dosage_id = $1
+        AND p.nfc_code IS NOT NULL
+        AND (p.deleted_at IS NULL OR p.deleted_at > NOW())
+      GROUP BY p.nfc_code
+      ORDER BY cnt DESC
+      LIMIT 3
+    `, [mid])
+
+    // Also return raw form name from molecule_dosages for keyword fallback
+    const { rows: mdRows } = await db.query(
+      `SELECT name FROM molecule_dosages WHERE id = $1`, [mid]
+    )
+
+    return NextResponse.json({
+      nfc_from_products: nfcRows.map((r: any) => ({ code: r.nfc_code, count: Number(r.cnt) })),
+      molecule_dosage_name: mdRows[0]?.name ?? null,
+    })
+  }
+
+  // ── GET /rxnorm/lookup?name={mol}&dosage={d}&unit={u} ─────────────────────
+  if (seg0 === 'rxnorm' && seg1 === 'lookup' && method === 'GET') {
+    const url = new URL(req.url)
+    const name = url.searchParams.get('name') ?? ''
+    if (!name) return NextResponse.json({ error: 'name required' }, { status: 400 })
+
+    const NON_BRAND_TTYS = new Set(['IN', 'PIN', 'MIN', 'SCDF', 'SCDG', 'SCD'])
+    const TTY_LABELS: Record<string, string> = {
+      IN: 'Ingredient', PIN: 'Precise Ingredient', MIN: 'Multiple Ingredient',
+      SCDF: 'Clinical Drug Form', SCDG: 'Clinical Drug Group', SCD: 'Clinical Drug',
+    }
+
+    const rxRes = await fetch(
+      `https://rxnav.nlm.nih.gov/REST/drugs.json?name=${encodeURIComponent(name)}`,
+      { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) }
+    )
+    if (!rxRes.ok) return NextResponse.json({ ttys: [], matched: null })
+
+    const rxData = await rxRes.json()
+    const groups: any[] = rxData?.drugGroup?.conceptGroup ?? []
+    const ttys: { tty: string; ttyLabel: string; rxcui: string; name: string }[] = []
+
+    for (const grp of groups) {
+      if (!NON_BRAND_TTYS.has(grp.tty)) continue
+      for (const prop of grp.conceptProperties ?? []) {
+        ttys.push({
+          tty: grp.tty,
+          ttyLabel: TTY_LABELS[grp.tty] ?? grp.tty,
+          rxcui: prop.rxcui,
+          name: prop.name,
+        })
+      }
+    }
+
+    const matchedName = groups.find(g => NON_BRAND_TTYS.has(g.tty))
+      ?.conceptProperties?.[0]?.name ?? null
+
+    return NextResponse.json({ ttys, matched: matchedName })
+  }
+
+  // ── GET /rxnorm/search?q={term} ───────────────────────────────────────────
+  if (seg0 === 'rxnorm' && seg1 === 'search' && method === 'GET') {
+    const url = new URL(req.url)
+    const q = url.searchParams.get('q') ?? ''
+    if (!q) return NextResponse.json({ results: [] })
+
+    const rxRes = await fetch(
+      `https://rxnav.nlm.nih.gov/REST/approximateTerm.json?term=${encodeURIComponent(q)}&maxEntries=20&option=0`,
+      { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) }
+    )
+    if (!rxRes.ok) return NextResponse.json({ results: [] })
+
+    const rxData = await rxRes.json()
+    const candidates = rxData?.approximateGroup?.candidate ?? []
+
+    return NextResponse.json({
+      results: candidates.map((c: any) => ({
+        rxcui: c.rxcui,
+        name: c.name,
+        score: Number(c.score ?? 0),
+      })),
+    })
+  }
+
   return NextResponse.json({ error: 'Not found' }, { status: 404 })
 }
 
